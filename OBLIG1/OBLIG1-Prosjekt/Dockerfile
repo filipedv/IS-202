@@ -1,23 +1,29 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+﻿# ---- base (runtime) ----
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-EXPOSE 8081
 
+# ---- build ----
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["OBLIG1/OBLIG1.csproj", "OBLIG1/"]
-RUN dotnet restore "OBLIG1/OBLIG1.csproj"
-COPY . .
-WORKDIR "/src/OBLIG1"
-RUN dotnet build "./OBLIG1.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Kopier kun csproj først for bedre cache
+COPY ["OBLIG1-Prosjekt/OBLIG1-Prosjekt.csproj", "OBLIG1-Prosjekt/"]
+RUN dotnet restore "OBLIG1-Prosjekt/OBLIG1-Prosjekt.csproj"
 
+# Kopier resten og bygg
+COPY . .
+WORKDIR "/src/OBLIG1-Prosjekt"
+RUN dotnet build "OBLIG1-Prosjekt.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# ---- publish ----
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./OBLIG1.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "OBLIG1-Prosjekt.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+# ---- final ----
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OBLIG1.dll"]
+ENTRYPOINT ["dotnet", "OBLIG1-Prosjekt.dll"]

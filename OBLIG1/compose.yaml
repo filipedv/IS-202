@@ -1,7 +1,13 @@
 ﻿services:
   oblig1:
-    image: oblig1
+    image: oblig1:dev
     build:
       context: .
-      dockerfile: OBLIG1/Dockerfile
-
+      dockerfile: OBLIG1-Prosjekt/Dockerfile   # samme sti som dere har
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://+:8080"
+    ports:
+      - "8080:8080"
+    # Hvis noen med Apple Silicon får trøbbel:
+    # platform: "linux/amd64"
