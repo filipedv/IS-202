@@ -1,0 +1,7 @@
+﻿services:
+  oblig1:
+    image: oblig1
+    build:
+      context: .
+      dockerfile: OBLIG1/Dockerfile
+
