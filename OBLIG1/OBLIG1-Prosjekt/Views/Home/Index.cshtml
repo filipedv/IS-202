@@ -6,3 +6,23 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+<!-- Leaflet Map -->
+<div id="map" style="height: 500px; width: 100%;" class="mb-4 rounded shadow-sm"></div>
+
+@section Scripts {
+    <script>
+        // Initialize the Leaflet map
+        var map = L.map('map').setView([59.9139, 10.7461], 13); // Kristiansand coordinates
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add a marker with a popup
+        L.marker([59.9139, 10.7461]).addTo(map)
+          .bindPopup('Hello from Kristiansand!')
+          .openPopup();
+    </script>
+}
