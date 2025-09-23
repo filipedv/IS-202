@@ -1,0 +1,30 @@
+@model IEnumerable<OBLIG1.Models.Point>
+@{
+    ViewData["Title"] = "Map";
+    var pointsJson = System.Text.Json.JsonSerializer.Serialize(Model);
+}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Map</h1>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
+    </div>
+    <div id="map" style="height: 480px;" class="rounded border"></div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+const map = L.map('map').setView([59.9139, 10.7522], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap'}).addTo(map);
+
+const points = @Html.Raw(pointsJson);
+points.forEach(p => {
+  L.marker([p.latitude, p.longitude]).addTo(map)
+    .bindPopup(`<strong>${p.title}</strong><br/>${p.latitude}, ${p.longitude}`);
+});
+</script>
+}

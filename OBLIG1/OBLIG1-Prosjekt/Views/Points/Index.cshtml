@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Points";
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Points</h1>
+        <div>
+            <a class="btn btn-primary" asp-action="Create">New point</a>
+            <a class="btn btn-outline-secondary" asp-action="Map">Show map</a>
+        </div>
+    </div>
+
+    @if (TempData["Flash"] is string flash)
+    { <div class="alert alert-success">@flash</div> }
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Title</th><th>Lat</th><th>Lng</th><th>Created (UTC)</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Title</td>
+                    <td>@p.Latitude</td>
+                    <td>@p.Longitude</td>
+                    <td>@p.CreatedAt.ToString("u")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <hr />
+    <h2 class="h5">Dynamic content</h2>
+    <p>Server time: <span id="srv"></span></p>
+</div>
+
+@section Scripts {
+    <script>
+async function tick(){
+  const r = await fetch('/api/info/servertime');
+  const j = await r.json();
+  document.getElementById('srv').textContent = new Date(j.serverTime).toLocaleString();
+}
+tick(); setInterval(tick, 2000);
+</script>
+}
