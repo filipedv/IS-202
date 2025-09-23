@@ -4,24 +4,48 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - OBLIG1-Prosjekt</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    
+    
+    <!-- Tailwind (CDN for quick start). For production, use a proper build pipeline. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Optionally extend Tailwind (example keeps it minimal)
+        tailwind.config = {
+          theme: {
+            extend: {
+              container: { center: true, padding: { DEFAULT: '1rem', md: '1.5rem' } }
+            }
+          }
+        }
+    </script>
+    
+    <!-- Your app/site styles if needed -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true"/>
     
     <!-- Leaflet JS -->
+<<<<<<< Updated upstream
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+=======
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+>>>>>>> Stashed changes
 </head>
 <body>
+<!-- Header / Nav -->
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OBLIG1-Prosjekt</a>
+
+            <!-- Mobile menu button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Links -->
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
@@ -35,17 +59,22 @@
         </div>
     </nav>
 </header>
+
+<!-- Main -->
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
+<!-- Footer -->
 <footer class="border-top footer text-muted">
     <div class="container">
         &copy; 2025 - OBLIG1-Prosjekt - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
+
+<!-- Scripts -->
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
@@ -54,5 +83,9 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 @await RenderSectionAsync("Scripts", required: false)
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 </body>
 </html>
