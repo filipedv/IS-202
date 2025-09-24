@@ -1,37 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
 using OBLIG1.Models;
+using System.Collections.Generic;
 
-namespace OBLIG1.Controllers;
-
-public class ObstacleController : Controller
+namespace OBLIG1.Controllers
 {
-    // blir kalt etter at vi trykker på "Register Obstacle" lenken i Index viewet
-    [HttpGet]
-    public ActionResult DataForm()
+    public class ObstacleController : Controller
     {
-        return View();
-    }
+        // Store all submitted obstacles in-memory
+        private static List<ObstacleData> obstacles = new List<ObstacleData>();
 
-
-    // blir kalt etter at vi trykker på "Submit Data" knapp i DataForm viewet
-    [HttpPost]
-    public ActionResult DataForm(ObstacleData obstacledata)
-    {
-        bool isDraft = false;
-        if (obstacledata.ObstacleDescription == null)
-        { 
-            isDraft = true;
+        // GET: show the form
+        [HttpGet]
+        public ActionResult DataForm()
+        {
+            return View();
         }
 
-        return View("Overview", obstacledata);
-    }
+        // POST: process form submission
+        [HttpPost]
+        public ActionResult DataForm(ObstacleData obstacledata)
+        {
+            if (obstacledata != null)
+            {
+                obstacles.Add(obstacledata); // store submitted obstacle
+            }
 
-    private static List<ObstacleData> obstacles = new List<ObstacleData>();
+            // Optional: check for draft
+            bool isDraft = string.IsNullOrEmpty(obstacledata?.ObstacleDescription);
 
-    [HttpGet]
-    public ActionResult Overview()
-    {
-        // List of all submitted obstacles to the view
-        return View(obstacles);
+            // Redirect to Overview to display all obstacles
+            return RedirectToAction("Overview");
+        }
+
+        // GET: show overview of all obstacles
+        [HttpGet]
+        public ActionResult Overview()
+        {
+            return View(obstacles); // pass list to view
+        }
     }
 }
