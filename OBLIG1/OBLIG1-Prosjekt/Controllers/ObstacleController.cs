@@ -25,4 +25,13 @@ public class ObstacleController : Controller
 
         return View("Overview", obstacledata);
     }
+
+    private static List<ObstacleData> obstacles = new List<ObstacleData>();
+
+    [HttpGet]
+    public ActionResult Overview()
+    {
+        // List of all submitted obstacles to the view
+        return View(obstacles);
+    }
 }
