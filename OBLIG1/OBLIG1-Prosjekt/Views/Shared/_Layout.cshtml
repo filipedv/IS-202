@@ -4,57 +4,57 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - OBLIG1-Prosjekt</title>
-    
-    
-    <!-- Tailwind (CDN for quick start). For production, use a proper build pipeline. -->
+
+    <!-- Tailwind først -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Optionally extend Tailwind (example keeps it minimal)
-        tailwind.config = {
-          theme: {
-            extend: {
-              container: { center: true, padding: { DEFAULT: '1rem', md: '1.5rem' } }
-            }
-          }
-        }
-    </script>
-    
-    <!-- Your app/site styles if needed -->
+
+    <!-- Deretter Bootstrap (overstyrer Tailwind sin .collapse) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true"/>
-    
-    <!-- Leaflet JS -->
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
 </head>
+
+
 <body>
 <!-- Header / Nav -->
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OBLIG1-Prosjekt</a>
+            <a class="navbar-brand" >OBLIG1</a>
 
-            <!-- Mobile menu button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- Ingen toggler-knapp -->
 
-            <!-- Links -->
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+            <!-- Menyen er alltid synlig -->
+            <div class="navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="DataForm">Register Obstacle</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="Overview">Overview</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+
+
+
 
 <!-- Main -->
 <div class="container">
