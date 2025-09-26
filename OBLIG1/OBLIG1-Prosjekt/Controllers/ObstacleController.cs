@@ -1,3 +1,5 @@
+// Håndterer registrering og visning av hindringer og lagrer midlertidig i minnet
+
 using Microsoft.AspNetCore.Mvc;
 using OBLIG1.Models;
 using System.Collections.Generic;
@@ -6,37 +8,37 @@ namespace OBLIG1.Controllers
 {
     public class ObstacleController : Controller
     {
-        // Store all submitted obstacles in-memory
+        // Lagre alle innsendte hindringer i minnet
         private static List<ObstacleData> obstacles = new List<ObstacleData>();
 
-        // GET: show the form
+        // GET: vis registreringsskjemaet
         [HttpGet]
         public ActionResult DataForm()
         {
             return View();
         }
 
-        // POST: process form submission
+        // POST: håndtere innsending av registreringsskjemaet
         [HttpPost]
         public ActionResult DataForm(ObstacleData obstacledata)
         {
             if (obstacledata != null)
             {
-                obstacles.Add(obstacledata); // store submitted obstacle
+                obstacles.Add(obstacledata); // Lagre innsendt hindring
             }
 
-            // Optional: check for draft
+            // Valgfritt: Sjekk for utkast
             bool isDraft = string.IsNullOrEmpty(obstacledata?.ObstacleDescription);
 
-            // Redirect to Overview to display all obstacles
+            // Gå til Overview for å vise alle hindringer
             return RedirectToAction("Overview");
         }
 
-        // GET: show overview of all obstacles
+        // GET: vise oversikt over alle hinderinger
         [HttpGet]
         public ActionResult Overview()
         {
-            return View(obstacles); // pass list to view
+            return View(obstacles); // Sende liste til visning
         }
     }
 }
