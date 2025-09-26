@@ -1,10 +1,17 @@
-@model List<OBLIG1.Models.ObstacleData>
+<!-- Tar en liste med ObstacleData, 
+Printer ut hvert element i listen med navn/høyde/beskrivelse,
+ og lager et eget Leaflet-kart for hvert hinder. 
+GeoJSON hentes rett fra modellen via et data-attributt. -->
+
+@model List<OBLIG1.Models.ObstacleData> 
+<!-- Forventer en liste med obstacledata -->
 
 @{
-    ViewData["Title"] = "Overview";
+    ViewData["Title"] = "Overview"; <!-- Tittel -->
 }
-
-@for (int i = 0; i < (Model?.Count ?? 0); i++)
+<!-- For-løkke som går gjennom hvert registrerte hinder fra obstacledata og genererer en html seksjon
+som viser informasjon og kart.  -->
+@for (int i = 0; i < (Model?.Count ?? 0); i++) 
 {
     var o = Model[i];
     <section class="mx-auto max-w-2xl mb-6">
@@ -41,7 +48,7 @@
 }
 
 @section Scripts {
-    <!-- Leaflet JS (CSS må ligge i <head> i _Layout.cshtml) -->
+    <!-- Leaflet JS, CSS ligger i <head> i _Layout.cshtml -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
