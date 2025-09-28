@@ -41,4 +41,4 @@ namespace OBLIG1.Controllers
             return View(obstacles); // Sende liste til visning
         }
     }
-}
+}  

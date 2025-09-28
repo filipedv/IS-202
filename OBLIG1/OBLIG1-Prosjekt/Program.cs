@@ -1,31 +1,31 @@
+//Starter asp.net core-appen
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Registrerer MVC(controllers og razor-views
 builder.Services.AddControllersWithViews();
 
+//Bygger web-appen
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Konfigurerer http
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-
-    // In production we redirect HTTP -> HTTPS.
-    app.UseHttpsRedirection();
+    app.UseExceptionHandler("/Home/Error"); //sender feil til /home/error
+    app.UseHsts(); //hsts header for å sikre https forbindelser
+    app.UseHttpsRedirection(); //redirecter http til https i produksjonen
 }
 
-// In Development (e.g., inside Docker with HTTP on :8080) we do NOT force HTTPS.
+//Aktiverer routing-system
 app.UseRouting();
 
-app.UseAuthorization();
-
+//Aktiverer en "server" for statiske filer
 app.MapStaticAssets();
 
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    .WithStaticAssets(); //Statiske filer kan brukes sammen med routene / sørger for at- 
+                        // CSS-filene kan leveres når de brukes sammen med controller sider
 
+//Starter webserveren
 app.Run();
