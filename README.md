@@ -51,6 +51,11 @@
 5. Bruker navigerer til Overview for å se en samlet oversikt over alle registrerte hindringer.
 
 ## 3. Testscenarier
+
+### Link til demonstrasjonsvideo<br>
+https://youtu.be/ik5dVq2Qdds
+<br>
+
 - **Registrering med fullstendig informasjon**<br>
   Fyll ut navn, høyde, beskrivelse og tegn på kart -> Submit<br>
   *Forventet resultat*: Hindringen lagres og vises i Overview<br>
