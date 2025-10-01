@@ -70,7 +70,7 @@ https://youtu.be/ik5dVq2Qdds
   *Faktisk resultat*: Bestått
 - **Visning av oversikt**<br>
   Naviger til Overview<br>
-  *Forventet resultat*: Alle registrerte hindringer vises korrekt
+  *Forventet resultat*: Alle registrerte hindringer vises korrekt<br>
   *Faktisk resultat*: Bestått
 - **Dynamisk kartjustering**<br>
   Endre størrelsen på nettleservindu<br>
