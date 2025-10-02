@@ -15,8 +15,11 @@
 3. Bygg applikasjonen i terminalen:<br>
    *dotnet build*
 4. Kjør applikasjonen lokalt:<br>
+   Bygg og kjør via Docker<br>
+   *docker compose up --build*<br>
+   eller direkt med .NET
    *dotnet run*
-5. Åpne nettleser og naviger til *http://localhost:5134*
+6. Åpne nettleser og naviger til *http://localhost:5134*
 
 ### Driftsinformasjon
 - Alle registrerte hindringer lagres midlertidig i applikasjonens minne via List&lt;ObstacleData&gt;.
