@@ -17,8 +17,7 @@
 4. Kjør applikasjonen lokalt:<br>
    Bygg og kjør via Docker<br>
    *docker compose up --build*<br>
-   
-   eller direkte med .NET
+   eller direkte med .NET<br>
    *dotnet run*
 6. Åpne nettleser og naviger til *http://localhost:5134*
 
