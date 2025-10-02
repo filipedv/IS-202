@@ -10,13 +10,13 @@
 
 ### Installasjon og oppstart
 1. Klone repositoriet fra GitHub i terminalen:<br>
-   git clone https://github.com/filipedv/IS-202.git
+   *git clone https://github.com/filipedv/IS-202.git*
 2. Åpne prosjektet i valgt utviklingsmiljø
 3. Bygg applikasjonen i terminalen:<br>
-   dotnet build
+   *dotnet build*
 4. Kjør applikasjonen lokalt:<br>
-   dotnet run
-5. Åpne nettleser og naviger til http://localhost:5134
+   *dotnet run*
+5. Åpne nettleser og naviger til *http://localhost:5134*
 
 ### Driftsinformasjon
 - Alle registrerte hindringer lagres midlertidig i applikasjonens minne via List&lt;ObstacleData&gt;.
@@ -53,7 +53,7 @@
 ## 3. Testscenarier
 
 ### Link til demonstrasjonsvideo<br>
-https://youtu.be/ik5dVq2Qdds
+*https://youtu.be/ik5dVq2Qdds*
 <br>
 
 - **Registrering med fullstendig informasjon**<br>
