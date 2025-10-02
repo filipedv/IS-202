@@ -15,7 +15,7 @@
 3. Bygg applikasjonen i terminalen:<br>
    *dotnet build*
 4. Kjør applikasjonen lokalt:<br>
-   Bygg og kjør via Docker<br>
+   Med Docker<br>
    *docker compose up --build*<br>
    eller direkte med .NET<br>
    *dotnet run*
