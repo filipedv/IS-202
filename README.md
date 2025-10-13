@@ -3,7 +3,7 @@
 ## 1. Drift og implementering
 
 ### Systemkrav
-- .NET 7 SDK eller nyere
+- .NET 9 SDK eller nyere
 - Visual Studio 2022 eller Rider
 - Nettleser med Javascript aktivert
 - Internett tilgang for Leaflet og OpenStreetMap
