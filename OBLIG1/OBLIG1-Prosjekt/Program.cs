@@ -1,3 +1,5 @@
+using OBLIG1.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +20,9 @@ if (!app.Environment.IsDevelopment())
 
 // In Development (e.g., inside Docker with HTTP on :8080) we do NOT force HTTPS.
 app.UseRouting();
+
+//Dependency injection
+builder.Services.AddScoped<IDataRepository, DataRepository>();
 
 app.UseAuthorization();
 

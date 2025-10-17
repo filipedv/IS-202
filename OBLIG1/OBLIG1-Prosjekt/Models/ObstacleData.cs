@@ -17,4 +17,11 @@ public class ObstacleData
 
     // Felt som beholder koordinatene til hinderets lokasjon
     public string? GeometryGeoJson { get; set; }
+    
+    
+    public class DataDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
 }
