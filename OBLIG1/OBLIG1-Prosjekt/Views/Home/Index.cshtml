@@ -3,35 +3,32 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!-- Velkomsttekst -->
-<div class="text-center mb-4">
-    <h1 class="display-3">Welcome</h1>
-
-    <div class="d-inline-flex gap-3 mt-3">
+    <div class="d-flex justify-content-center gap-5 mt-4">
         <!-- Knapp for å registrere hinder -->
         <a asp-action="DataForm" asp-controller="Obstacle"
-           class="btn btn-primary btn-sm">
+           class="btn btn-primary btn-lg btn-sm fs-2">
             Register Obstacle
         </a>
 
         <!-- Knapp for Overview -->
         <a asp-action="Overview" asp-controller="Obstacle"
-           class="btn btn-primary btn-sm">
-            Overview
+           class="btn btn-primary btn-lg btn-sm fs-2">
+            Obstacle Overview
         </a>
     </div>
-</div>
+
 
 <!-- Responsivt Leaflet Map -->
-<div class="mb-4 rounded shadow-sm">
+<div class="mb-2 mt-4 rounded shadow-sm">
     <div id="map" class="w-100" style="height: 60vh; min-height: 300px;"></div>
 </div>
+
 
 @section Scripts {
     <script>
         // Opprett Leaflet-kart
-        var map = L.map('map').setView([59.9139, 10.7461], 13); // Example: Oslo
-
+        var map = L.map('map').setView([58.1467, 7.9956], 13); // Kristiansand geografisk sentrum
+        
         // Legg til OpenStreetMap-fliser
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
