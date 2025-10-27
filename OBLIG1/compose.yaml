@@ -1,13 +1,15 @@
-﻿services:
+﻿#
+services:
   oblig1:
     image: oblig1:dev
     build:
       context: .
-      dockerfile: OBLIG1-Prosjekt/Dockerfile   # samme sti som dere har
+      dockerfile: OBLIG1-Prosjekt/Dockerfile   
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "http://+:8080"
     ports:
       - "8080:8080"
-    # Hvis noen med Apple Silicon får trøbbel:
-    # platform: "linux/amd64"
+    
+#Med "docker compose up --build" bygger man et image fra OBLIG-Prosjekt/Dockerfile og starter en container-
+#oblig1" Kjøres på port :8080 

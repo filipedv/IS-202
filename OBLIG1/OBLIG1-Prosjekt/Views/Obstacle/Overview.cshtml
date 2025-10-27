@@ -1,0 +1,101 @@
+<!-- Tar en liste med ObstacleData, 
+Printer ut hvert element i listen med navn/høyde/beskrivelse,
+ og lager et eget Leaflet-kart for hvert hinder. 
+GeoJSON hentes rett fra modellen via et data-attributt. -->
+
+@model List<OBLIG1.Models.ObstacleData> 
+<!-- Forventer en liste med obstacledata -->
+
+@{
+    ViewData["Title"] = "Overview"; <!-- Tittel -->
+    var count = Model?.Count ?? 0;
+
+}
+
+@if (count == 0)
+{
+    <section class="mx-auto max-w-2xl my-6">
+        <div class="alert alert-info" role="alert">
+            There are no obstacles yet. Add an obstacle to see it here.
+            </div>
+        <a asp-controller="Obstacle" asp-action="DataForm" class="btn btn-primary">
+            Register obstacle
+        </a>
+    </section>
+}
+else
+{
+    <!-- For-løkke som går gjennom hvert registrerte hinder fra obstacledata og genererer en html seksjon
+    som viser informasjon og kart.  -->
+    @for (int i = 0; i < (Model?.Count ?? 0); i++)
+    {
+        var o = Model[i];
+        <section class="mx-auto max-w-2xl mb-6">
+            <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 space-y-4">
+                <header>
+                    <h2 class="text-2xl font-semibold">Overview</h2>
+                    <p class="text-gray-600 mt-1">Thank you for registering an obstacle:</p>
+                </header>
+
+                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-600">Obstacle Name</dt>
+                        <dd class="mt-1 text-base text-gray-900 break-words">@o.ObstacleName</dd>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-600">Height (m)</dt>
+                        <dd class="mt-1 text-base text-gray-900">@o.ObstacleHeight</dd>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-600">Description</dt>
+                        <dd class="mt-1 text-base text-gray-900 break-words sm:col-span-3">@o.ObstacleDescription</dd>
+                    </div>
+                </dl>
+
+                <div class="space-y-3">
+                    <label class="block text-sm font-medium text-gray-800">Geometry (map)</label>
+                    <div id="overview-map-@i"
+                         data-geo='@Html.Raw(o.GeometryGeoJson ?? "null")'
+                         style="height:420px; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb;">
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    @section Scripts {
+        <!-- Leaflet JS, CSS ligger i <head> i _Layout.cshtml -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+        <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Finn alle map-diver som vi nettopp rendret
+        document.querySelectorAll("[id^='overview-map-']").forEach(function(el) {
+          // 1) Init map
+          var map = L.map(el.id).setView([20, 0], 2);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(map);
+
+          // 2) Les GeoJSON fra data-attributtet
+          var geo = el.dataset.geo;             // string eller "null"
+          if (!geo || geo === "null" || geo.trim() === "") return;
+
+          try {
+            var parsed = JSON.parse(geo);
+            var layer = L.geoJSON(parsed, {
+              pointToLayer: function(feature, latlng){ return L.marker(latlng); }
+            }).addTo(map);
+
+            // 3) Zoom til data hvis mulig
+            if (layer.getLayers && layer.getLayers().length && layer.getBounds) {
+              map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+            }
+          } catch (e) {
+            console.warn("Invalid GeoJSON for", el.id, e);
+          }
+        });
+      });
+    </script>
+    }
+}
