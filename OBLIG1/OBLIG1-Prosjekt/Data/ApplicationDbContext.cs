@@ -1,19 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using OBLIG1.Models; // ← gir tilgang til Obstacle-entity
 
 namespace OBLIG1.Data;
 
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
-
-    // Minst én DbSet så migrasjonen ikke blir tom:
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    
+    public DbSet<Obstacle> Obstacles => Set<Obstacle>();   // Tabellen "Obstacles"
 }
 
-// Eksempel-entity
-public class TodoItem
-{
-    public int Id { get; set; }
-    public string Title { get; set; } = "";
-    public bool Done { get; set; }
-}
