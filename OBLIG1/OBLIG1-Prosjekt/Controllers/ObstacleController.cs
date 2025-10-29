@@ -1,44 +1,49 @@
-// Håndterer registrering og visning av hindringer og lagrer midlertidig i minnet
-
 using Microsoft.AspNetCore.Mvc;
-using OBLIG1.Models;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using OBLIG1.Data;     // DbContext
+using OBLIG1.Models;   // Obstacle + ObstacleData
 
 namespace OBLIG1.Controllers
 {
     public class ObstacleController : Controller
     {
-        // Lagre alle innsendte hindringer i minnet
-        private static List<ObstacleData> obstacles = new List<ObstacleData>();
+        private readonly ApplicationDbContext _db;
+        public ObstacleController(ApplicationDbContext db) => _db = db;
 
-        // GET: vis registreringsskjemaet
+        // GET: /Obstacle/DataForm
         [HttpGet]
-        public ActionResult DataForm()
-        {
-            return View();
-        }
+        public IActionResult DataForm() => View(new ObstacleData());
 
-        // POST: håndtere innsending av registreringsskjemaet
-        [HttpPost]
-        public ActionResult DataForm(ObstacleData obstacledata)
+        // POST: /Obstacle/DataForm
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DataForm(ObstacleData vm)
         {
-            if (obstacledata != null)
+            if (!ModelState.IsValid) return View(vm);
+
+            // Map fra view-model (ObstacleData) til entity (Obstacle)
+            var entity = new Obstacle
             {
-                obstacles.Add(obstacledata); // Lagre innsendt hindring
-            }
+                Name = vm.ObstacleName,
+                Height = vm.ObstacleHeight,
+                Description = vm.ObstacleDescription,
+                IsDraft = vm.IsDraft,
+                GeometryGeoJson = vm.GeometryGeoJson,
+                RegisteredAt = DateTime.UtcNow
+            };
 
-            // Valgfritt: Sjekk for utkast
-            bool isDraft = string.IsNullOrEmpty(obstacledata?.ObstacleDescription);
-
-            // Gå til Overview for å vise alle hindringer
-            return RedirectToAction("Overview");
+            _db.Obstacles.Add(entity);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Overview));
         }
 
-        // GET: vise oversikt over alle hinderinger
+        // GET: /Obstacle/Overview
         [HttpGet]
-        public ActionResult Overview()
+        public async Task<IActionResult> Overview()
         {
-            return View(obstacles); // Sende liste til visning
+            var list = await _db.Obstacles
+                .OrderByDescending(o => o.RegisteredAt)
+                .ToListAsync();
+            return View(list);
         }
     }
-}  
+}
