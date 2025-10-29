@@ -1,15 +1,53 @@
-﻿#
+﻿version: "3.9"
+
 services:
+  db:
+    image: mariadb:lts
+    container_name: oblig1_mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: appdb
+      MARIADB_USER: appuser
+      MARIADB_PASSWORD: appsecret
+      MARIADB_ROOT_PASSWORD: rootsecret
+    volumes:
+      - dbdata:/var/lib/mysql
+    # Du trenger egentlig ikke eksponere DB-porten utenfra, men ta den med om dere vil bruke en lokal klient
+    # ports:
+    #   - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -prootsecret || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
   oblig1:
     image: oblig1:dev
     build:
       context: .
-      dockerfile: OBLIG1-Prosjekt/Dockerfile   
+      dockerfile: OBLIG1-Prosjekt/Dockerfile
+    container_name: oblig1_web
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "http://+:8080"
+      # Viktig: connection string som appen leser i Program.cs
+      ConnectionStrings__DefaultConnection: "server=db;port=3306;database=appdb;user=appuser;password=appsecret;AllowUserVariables=True;TreatTinyAsBoolean=false"
     ports:
       - "8080:8080"
-    
-#Med "docker compose up --build" bygger man et image fra OBLIG-Prosjekt/Dockerfile og starter en container-
-#oblig1" Kjøres på port :8080 
+
+  adminer:
+    image: adminer:4
+    container_name: oblig1_adminer
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+volumes:
+  dbdata:

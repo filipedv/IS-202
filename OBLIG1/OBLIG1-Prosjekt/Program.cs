@@ -1,31 +1,48 @@
-//Starter asp.net core-appen
+using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure; // for MariaDbServerVersion
+using OBLIG1.Data; 
 var builder = WebApplication.CreateBuilder(args);
 
-//Registrerer MVC(controllers og razor-views
+// Hent connstr fra appsettings.json (lokalt) eller miljøvariabel (docker-compose)
+var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
+              ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+
 builder.Services.AddControllersWithViews();
 
-//Bygger web-appen
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (string.IsNullOrWhiteSpace(connStr))
+        throw new InvalidOperationException(
+            "Connection string mangler. Sett ConnectionStrings__DefaultConnection i compose eller appsettings.json.");
+
+    // Bruk fast versjon for EF design-time (slipper å koble til DB)
+    var serverVersion = new MariaDbServerVersion(new Version(11, 4, 0));
+    options.UseMySql(connStr, serverVersion);
+});
+
 var app = builder.Build();
 
-//Konfigurerer http
-if (!app.Environment.IsDevelopment())
+// Kjør migrasjoner automatisk ved oppstart
+using (var scope = app.Services.CreateScope())
 {
-    app.UseExceptionHandler("/Home/Error"); //sender feil til /home/error
-    app.UseHsts(); //hsts header for å sikre https forbindelser
-    app.UseHttpsRedirection(); //redirecter http til https i produksjonen
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
 }
 
-//Aktiverer routing-system
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
+
 app.UseRouting();
 
-//Aktiverer en "server" for statiske filer
 app.MapStaticAssets();
 
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets(); //Statiske filer kan brukes sammen med routene / sørger for at- 
-                        // CSS-filene kan leveres når de brukes sammen med controller sider
+    .WithStaticAssets();
 
-//Starter webserveren
 app.Run();
