@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace OBLIG1.Data; // ← Bytt til ditt faktiske namespace om nødvendig
+namespace OBLIG1.Data;
 
 public class ApplicationDbContext : DbContext
 {
