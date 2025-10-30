@@ -6,11 +6,11 @@ namespace OBLIG1.Controllers
     // Enkel viewmodel for innlogging
     public class LoginVm
     {
-        [Required, EmailAddress]
-        public string Email { get; set; } = "";
+        //[Required, EmailAddress] -- Fjerne "//" og ? i string når vi har brukere, dette er bare test av routingen
+        public string? Email { get; set; } //= "";
 
-        [Required, DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        //[Required, DataType(DataType.Password)] -- Fjerne "//" og ? i string når vi har brukere, dette er bare test av routingen
+        public string? Password { get; set; } //= "";
     }
 
     public class AuthController : Controller
