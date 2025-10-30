@@ -1,0 +1,58 @@
+@model OBLIG1.Controllers.LoginVm
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<style>
+  .hero { position: relative; min-height: 80vh; background: #eef2f7; }
+  .login-card {
+      position: absolute; inset: 0; margin: auto;
+      max-width: 420px; height: fit-content;
+      background: #fff; border: 2px solid #3b82f6;
+      border-radius: 14px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  }
+  .btn-primary   { background:#3b82f6; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
+  .btn-secondary { background:#475569; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
+  .btn-block { width:100%; display:block; text-align:center; }
+  .muted { color:#6b7280; }
+  .field { margin-bottom:12px; }
+  label { font-size:.9rem; color:#374151; display:block; margin-bottom:6px; }
+  input { width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; }
+  .rowgap > * { margin-top:10px; }
+</style>
+
+<div class="hero">
+  <div class="login-card">
+    <h2 style="margin:0 0 4px 0;">Welcome</h2>
+    <p class="muted" style="margin:0 0 16px 0;">Log in as <strong>Pilot</strong></p>
+
+    <!-- Pilot-login form (direkte på førstesiden) -->
+    <form asp-action="PilotLogin" method="post">
+      <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:8px;"></div>
+
+      <div class="field">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+      </div>
+
+      <div class="field">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block">Log in</button>
+    </form>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #e5e7eb;" />
+
+    <!-- To knapper til egne login-sider -->
+    <div class="rowgap">
+      <a asp-action="Registerforer" class="btn-secondary btn-block">Log in as registerfører</a>
+      <a asp-action="Admin"         class="btn-secondary btn-block">Log in as admin</a>
+    </div>
+  </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
