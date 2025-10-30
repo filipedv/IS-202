@@ -1,5 +1,7 @@
 @model OBLIG1.Controllers.LoginVm
 @{
+    Layout = "_Layout";              // valgfritt, hvis _Layout allerede er default kan denne sløyfes
+    ViewData["HideChrome"] = true;   // ← SKJUL header + footer
     ViewData["Title"] = "Registerfører - Log in";
     ViewData["Role"] = "Registerfører";
     ViewData["PostAction"] = "Registerforer";
