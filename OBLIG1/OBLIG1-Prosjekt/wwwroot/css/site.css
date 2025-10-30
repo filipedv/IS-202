@@ -30,19 +30,33 @@ body {
   text-align: start;
 }
 
-/* Auth login shared styles */
+/* Auth login styles (condensed) */
 .hero { position: relative; min-height: 80vh; background: #eef2f7; }
+
 .login-card {
     position: absolute; inset: 0; margin: auto;
-    max-width: 420px; height: fit-content;
-    background: #fff; border: 2px solid #3b82f6;
-    border-radius: 14px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    max-width: clamp(520px, 42vw, 640px);
+    background: #fff; border: 2px solid #3b82f6; border-radius: 18px;
+    padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,.08);
 }
-.btn-primary   { background:#3b82f6; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
-.btn-secondary { background:#475569; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
-.btn-block { width:100%; display:block; text-align:center; }
-.muted { color:#6b7280; }
-.field { margin-bottom:12px; }
-label { font-size:.9rem; color:#374151; display:block; margin-bottom:6px; }
-input { width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; }
-.rowgap > * { margin-top:10px; }
+
+/* Typography */
+.login-card h2 { font-size: 2rem; margin-bottom: 6px; }
+.muted { color: #6b7280; font-size: 1.25rem; }
+
+/* Form fields (scoped til kortet) */
+.login-card label { display: block; margin-bottom: 6px; color: #374151; font-size: 1.1rem; }
+.login-card input {
+    width: 100%; height: 56px; padding: 14px 16px;
+    font-size: 1.125rem; border: 1px solid #e5e7eb; border-radius: 12px;
+}
+.field { margin-bottom: 12px; }
+.rowgap > * { margin-top: 14px; }
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+    border: none; border-radius: 12px; padding: 16px 20px; font-size: 1.125rem; color: #fff;
+}
+.btn-primary { background: #3b82f6; }
+.btn-secondary { background: #475569; }
+.btn-block { width: 100%; display: block; text-align: center; }
