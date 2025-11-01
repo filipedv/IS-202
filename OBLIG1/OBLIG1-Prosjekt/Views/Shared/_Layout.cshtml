@@ -1,88 +1,87 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - OBLIG1-Prosjekt</title>
 
     <!-- Tailwind først -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Deretter Bootstrap (overstyrer Tailwind sin .collapse) -->
+    <!-- Deretter Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true" />
 
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="anonymous" />
 </head>
 
-
-<body>
-<!-- Header / Nav -->
-@if (!(ViewData["HideChrome"] as bool? ?? false))
-{
-
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand">OBLIG1</a>
-
-                <!-- Menyen er alltid synlig, ingen toggler-knapp -->
-                <div class="navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="DataForm">Register Obstacle</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="Overview">Overview</a>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="@( (ViewData["HideChrome"] as bool?) == true ? "no-chrome" : "" )">
+    @* Header / Nav *@
+    @if (!(ViewData["HideChrome"] as bool? ?? false))
+    {
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand">OBLIG1</a>
+                    <div class="navbar-collapse" id="mainNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="DataForm">Register Obstacle</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="Overview">Overview</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+            </nav>
+        </header>
+    }
+
+    @* Main *@
+    <div class="container">
+        <main role="main" class="@( (ViewData["HideChrome"] as bool?) == true ? "" : "pb-3")">
+            @RenderBody()
+        </main>
+    </div>
+
+    @* Global footer (skjules når HideChrome = true) *@
+    @if (!(ViewData["HideChrome"] as bool? ?? false))
+    {
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; 2025 - OBLIG1-Prosjekt - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
-        </nav>
-    </header>
-}
+        </footer>
+    }
 
+    @* ⬇️ Valgfri side-spesifikk footer (kun rendres hvis siden definerer `@section PageFooter`) *@
+    @if (IsSectionDefined("PageFooter"))
+    {
+        <footer class="page-actions">
+            @RenderSection("PageFooter", required: false)
+        </footer>
+    }
 
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<!-- Main -->
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
-
-<!-- Footer -->
-@if (!(ViewData["HideChrome"] as bool? ?? false))
-{
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - OBLIG1-Prosjekt - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-}
-
-<!-- Scripts -->
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-@await RenderSectionAsync("Scripts", required: false)
-
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

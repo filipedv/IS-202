@@ -86,3 +86,36 @@ body {
 
 /* Når du skjuler header/footer med ViewData["HideChrome"] => legg klasse "no-chrome" på <body> i _Layout */
 .no-chrome { margin-bottom: 0; }    /* overstyr global body-margin om dere har den */
+
+/* reserver litt mer plass til den store footer-knappene */
+:root { --action-footer-space: 120px; }  /* øk om du gjør knappene enda større */
+
+/* bruk svh for korrekt høyde på Safari/mobil, og trekk fra litt ekstra */
+.home-map { height: calc(100svh - var(--action-footer-space) - 32px); }
+
+/* behold den flytende footeren */
+.page-actions{
+    position: fixed;
+    left: 0; right: 0; bottom: 12px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid #e5e7eb;
+    border-left: none; border-right: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    padding: 10px 12px;
+    z-index: 1030;
+}
+.page-actions .btn{
+    min-width: 280px;
+    padding: 18px 28px;
+    font-size: 1.35rem;
+    border-radius: 14px;
+    font-weight: 600;
+}
+.with-action-footer{ padding-bottom: var(--action-footer-space); }
+
+/* kartet fyller hele skjermhøyden minus footeren og litt topp-luft */
+.home-map { height: calc(100vh - var(--action-footer-space) - 24px); }
+
+/* fjern ekstra bunnmarginer som skaper “hvit stripe” */
+.home-section { margin-bottom: 0 !important; }
+

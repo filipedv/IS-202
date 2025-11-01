@@ -1,45 +1,27 @@
-﻿<!--Viser startsiden med velkomstmelding, navigasjon og et iteraktivt kart -->
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
+    ViewData["HideChrome"] = true;
 }
 
-<!-- Velkomsttekst -->
-<div class="text-center mb-4">
-    <h1 class="display-3">Welcome</h1>
-
-    <div class="d-inline-flex gap-3 mt-3">
-        <!-- Knapp for å registrere hinder -->
-        <a asp-action="DataForm" asp-controller="Obstacle"
-           class="btn btn-primary btn-sm">
-            Register Obstacle
-        </a>
-
-        <!-- Knapp for Overview -->
-        <a asp-action="Overview" asp-controller="Obstacle"
-           class="btn btn-primary btn-sm">
-            Overview
-        </a>
+<div class="with-action-footer">
+    <div class="home-section rounded shadow-sm">
+        <div id="map" class="home-map w-100"></div>
     </div>
 </div>
 
-<!-- Responsivt Leaflet Map -->
-<div class="mb-4 rounded shadow-sm">
-    <div id="map" class="w-100" style="height: 60vh; min-height: 300px;"></div>
-</div>
+@section PageFooter {
+    <div class="d-flex justify-content-center gap-3">
+        <a asp-controller="Obstacle" asp-action="DataForm" class="btn btn-primary">Register Obstacle</a>
+        <a asp-controller="Obstacle" asp-action="Overview"   class="btn btn-primary">Overview</a>
+    </div>
+}
 
 @section Scripts {
     <script>
-        // Opprett Leaflet-kart
-        var map = L.map('map').setView([59.9139, 10.7461], 13); // Example: Oslo
-
-        // Legg til OpenStreetMap-fliser
+        var map = L.map('map').setView([59.9139, 10.7461], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-
-        // Sikre at kartet endrer størrelse riktig ved vindusendring
-        window.addEventListener('resize', function() {
-            map.invalidateSize();
-        });
+        window.addEventListener('resize', function(){ map.invalidateSize(); });
     </script>
 }
