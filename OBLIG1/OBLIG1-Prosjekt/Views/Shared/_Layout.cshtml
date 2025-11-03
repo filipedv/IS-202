@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@*
+  _Layout.cshtml
+  - Skjuler global header/footer når ViewData["HideChrome"] = true
+  - Støtter side-spesifikk footer via @section PageFooter
+  - Dynamisk reservering av plass nederst gjennom --action-footer-space
+*@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,11 +14,14 @@
     <!-- Tailwind først -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Deretter Bootstrap -->
+    <!-- Deretter Bootstrap (for komponenter/utility-klasser) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Eget stilark -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true" />
 
+    <!-- Leaflet base CSS (Draw-assets lastes i de sidene som trenger det) -->
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -20,13 +29,14 @@
 </head>
 
 <body class="@( (ViewData["HideChrome"] as bool?) == true ? "no-chrome" : "" )">
-    @* Header / Nav *@
+    @* Global header/nav (skjules når HideChrome = true) *@
     @if (!(ViewData["HideChrome"] as bool? ?? false))
     {
         <header>
-            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3" aria-label="Main navigation">
                 <div class="container-fluid">
-                    <a class="navbar-brand">OBLIG1</a>
+                    <a class="navbar-brand" asp-controller="Home" asp-action="Index">OBLIG1</a>
+
                     <div class="navbar-collapse" id="mainNav">
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item">
@@ -50,7 +60,7 @@
         </header>
     }
 
-    @* Main *@
+    @* Main-innhold *@
     <div class="container">
         <main role="main" class="@( (ViewData["HideChrome"] as bool?) == true ? "" : "pb-3")">
             @RenderBody()
@@ -62,15 +72,16 @@
     {
         <footer class="border-top footer text-muted">
             <div class="container">
-                &copy; 2025 - OBLIG1-Prosjekt - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2025 - OBLIG1-Prosjekt -
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
         </footer>
     }
 
-    @* ⬇️ Valgfri side-spesifikk footer (kun rendres hvis siden definerer `@section PageFooter`) *@
+    @* Side-spesifikk, flytende footer for actions (vises kun hvis siden definerer @section PageFooter) *@
     @if (IsSectionDefined("PageFooter"))
     {
-        <footer class="page-actions">
+        <footer class="page-actions" role="contentinfo">
             @RenderSection("PageFooter", required: false)
         </footer>
     }
@@ -79,8 +90,37 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Leaflet base JS (Leaflet.Draw lastes på de sidene som trenger det) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    @* Dynamisk reservering av plass nederst til .page-actions (og tving reflow av kart) *@
+    <script>
+        (function () {
+            const root = document.documentElement;
+
+            function updateFooterSpace() {
+                const footer = document.querySelector('.page-actions');
+                if (!footer) return;
+
+                // +16px buffer for skygge/luft
+                const h = Math.ceil(footer.offsetHeight + 16);
+                root.style.setProperty('--action-footer-space', h + 'px');
+
+                // Sørg for at Leaflet reflow'er hvis kart finnes
+                if (window.dispatchEvent) window.dispatchEvent(new Event('resize'));
+            }
+
+            window.addEventListener('load',   updateFooterSpace);
+            window.addEventListener('resize', updateFooterSpace);
+
+            // Følg endringer i footer-høyden (wrap, font, etc.)
+            const ro = new ResizeObserver(updateFooterSpace);
+            const footerEl = document.querySelector('.page-actions');
+            if (footerEl) ro.observe(footerEl);
+        })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -30,92 +30,123 @@ body {
   text-align: start;
 }
 
-/* Auth login styles */
+/* ===== Auth login styles ===== */
 .hero {
-    min-height: 100vh;               /* fyll hele høyden */
-    display: flex;                   /* midtstill kortet */
-    align-items: center;             /* vertikalt sentrum */
-    justify-content: center;         /* horisontalt sentrum */
-    background: #eef2f7;
-    padding: 4rem 1rem;              /* luft på små skjermer */
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: #eef2f7; padding: 4rem 1rem;
 }
-
 .login-card {
-    width: min(90vw, 640px);         /* responsiv bredde */
-    max-width: 640px;
-    background: #fff;
-    border: 2px solid #3b82f6;
-    border-radius: 18px;
-    padding: 32px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    width: min(90vw, 640px); max-width: 640px;
+    background: #fff; border: 2px solid #3b82f6; border-radius: 18px;
+    padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,.08);
 }
-
-/* Typografi */
 .login-card h2 { font-size: 2rem; margin-bottom: 6px; }
 .muted { color: #6b7280; font-size: 1.25rem; }
-
-/* Skjemaelementer (scopet til kortet) */
-.login-card label {
-    display: block;
-    margin-bottom: 6px;
-    color: #374151;
-    font-size: 1.1rem;
-}
+.login-card label { display:block; margin-bottom:6px; color:#374151; font-size:1.1rem; }
 .login-card input {
-    width: 100%;
-    height: 56px;                    /* store trykkflater */
-    padding: 14px 16px;
-    font-size: 1.125rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    width:100%; height:56px; padding:14px 16px;
+    font-size:1.125rem; border:1px solid #e5e7eb; border-radius:12px;
 }
-.field { margin-bottom: 12px; }
-.rowgap > * { margin-top: 14px; }
-
-/* Knapper */
+.field { margin-bottom:12px; }
+.rowgap > * { margin-top:14px; }
 .btn-primary, .btn-secondary {
-    border: none;
-    border-radius: 12px;
-    padding: 16px 20px;
-    font-size: 1.125rem;
-    color: #fff;
+    border:none; border-radius:12px; padding:16px 20px; font-size:1.125rem; color:#fff;
 }
-.btn-primary { background: #3b82f6; }
-.btn-secondary { background: #475569; }
-.btn-block { width: 100%; display: block; text-align: center; }
+.btn-primary { background:#3b82f6; }
+.btn-secondary { background:#475569; }
+.btn-block { width:100%; display:block; text-align:center; }
 
-/* Når du skjuler header/footer med ViewData["HideChrome"] => legg klasse "no-chrome" på <body> i _Layout */
-.no-chrome { margin-bottom: 0; }    /* overstyr global body-margin om dere har den */
+/* Skjul global footer-margin når chrome er skjult */
+.no-chrome { margin-bottom: 0; }
 
-/* reserver litt mer plass til den store footer-knappene */
-:root { --action-footer-space: 120px; }  /* øk om du gjør knappene enda større */
+/* ===== Page footer + kart-høyde (felles for Home og DataForm) ===== */
+:root { --action-footer-space: 120px; }           /* juster ved behov */
 
-/* bruk svh for korrekt høyde på Safari/mobil, og trekk fra litt ekstra */
-.home-map { height: calc(100svh - var(--action-footer-space) - 32px); }
+.with-action-footer { padding-bottom: var(--action-footer-space); }
 
-/* behold den flytende footeren */
+/* Hjemmeside-kart */
+.home-map {
+    height: calc(100svh - var(--action-footer-space) - 24px);
+    min-height: 380px;
+}
+
+/* DataForm-kart */
+.form-map {
+    height: calc(100svh - var(--action-footer-space) - 24px);
+    min-height: 380px;
+}
+
+/* Sticky/flytende footer med handlingsknapper */
 .page-actions{
-    position: fixed;
-    left: 0; right: 0; bottom: 12px;
+    position: fixed; left:0; right:0; bottom:12px;
     background: rgba(255,255,255,.92);
-    border: 1px solid #e5e7eb;
-    border-left: none; border-right: none;
+    border: 1px solid #e5e7eb; border-left:none; border-right:none;
+    box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    padding: 10px 12px; z-index: 1030;
+}
+
+/* Tekst-knapper i footer (hvis brukt) */
+.page-actions .btn{
+    min-width: 220px;
+    padding: 14px 22px;
+    font-size: 1.125rem;
+    border-radius: 12px;
+}
+
+/* Ikon-knapper i footer (for DataForm-verktøy) */
+.icon-btn{
+    min-width: 64px; height: 56px; padding: 0 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+}
+.icon-btn svg{ display:block; }
+@media (min-width: 1200px){
+    .icon-btn { min-width: 72px; height: 64px; }
+}
+
+/* Skjult hjelpetekst for tilgjengelighet */
+.visually-hidden{
+    position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0 0 1px 1px); border:0;
+}
+
+/* Fjern ekstra bunnmargin som kan gi hvit stripe under */
+.home-section { margin-bottom: 0 !important; }
+
+/* Page footer container */
+.page-actions{
+    position: fixed; left:0; right:0; bottom:12px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid #e5e7eb; border-left:none; border-right:none;
     box-shadow: 0 6px 20px rgba(0,0,0,.08);
     padding: 10px 12px;
     z-index: 1030;
-}
-.page-actions .btn{
-    min-width: 280px;
-    padding: 18px 28px;
-    font-size: 1.35rem;
-    border-radius: 14px;
-    font-weight: 600;
-}
-.with-action-footer{ padding-bottom: var(--action-footer-space); }
 
-/* kartet fyller hele skjermhøyden minus footeren og litt topp-luft */
-.home-map { height: calc(100vh - var(--action-footer-space) - 24px); }
+    /* Viktig for små skjermer: */
+    overflow-x: hidden;          /* ikke hor scroll om vi wrap’er */
+}
 
-/* fjern ekstra bunnmarginer som skaper “hvit stripe” */
-.home-section { margin-bottom: 0 !important; }
+/* Rad med knapper inni footeren */
+.page-actions-bar{
+    display: flex;
+    flex-wrap: wrap;             /* <-- wrap til to/tre rader ved behov */
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ikonknapper – gjør dem litt fleksible i bredden */
+.icon-btn{
+    min-width: clamp(56px, 10vw, 72px);  /* krymp litt på små skjermer */
+    height: 56px; padding: 0 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+}
+@media (min-width: 1200px){
+    .icon-btn{ min-width: 72px; height: 64px; }
+}
+
+/* Siden reserverer plass til footeren nederst */
+.with-action-footer{ padding-bottom: var(--action-footer-space, 120px); }
 

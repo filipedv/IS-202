@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OBLIG1.Data;     // DbContext
-using OBLIG1.Models;   // Obstacle + ObstacleData
+using OBLIG1.Data;
+using OBLIG1.Models;
 
 namespace OBLIG1.Controllers
 {
@@ -15,25 +15,34 @@ namespace OBLIG1.Controllers
         public IActionResult DataForm() => View(new ObstacleData());
 
         // POST: /Obstacle/DataForm
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DataForm(ObstacleData vm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            // Map-only: vi krever minst geometri
+            if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
+            {
+                ModelState.AddModelError(nameof(vm.GeometryGeoJson),
+                    "Draw the obstacle on the map before submitting.");
+                return View(vm);
+            }
 
-            // Map fra view-model (ObstacleData) til entity (Obstacle)
+            // Sett fornuftige defaults for felter som ikke sendes i dette skjemaet
             var entity = new Obstacle
             {
-                Name = vm.ObstacleName,
-                Height = vm.ObstacleHeight,
-                Description = vm.ObstacleDescription,
-                IsDraft = vm.IsDraft,
+                Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
+                Height          = vm.ObstacleHeight <= 0 ? 0 : vm.ObstacleHeight,
+                Description     = vm.ObstacleDescription ?? "",
+                IsDraft         = vm.IsDraft,
                 GeometryGeoJson = vm.GeometryGeoJson,
-                RegisteredAt = DateTime.UtcNow
+                RegisteredAt    = DateTime.UtcNow
             };
 
             _db.Obstacles.Add(entity);
             await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Overview));
+
+            // ← Send brukeren tilbake til forsiden
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: /Obstacle/Overview
