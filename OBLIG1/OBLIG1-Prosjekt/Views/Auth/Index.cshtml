@@ -4,13 +4,27 @@
 }
 
 <style>
-  .hero { position: relative; min-height: 80vh; background: #eef2f7; }
+  body {
+    background-color: #d1fae5;
+      padding-bottom: 60px;
+  }
+
+  .hero {
+    position: relative;
+    min-height: 80vh;
+    background-color: #d1fae5; /* fallback */
+    background-image: url('/images/background.jpg');/Users/silje/Documents/IS - 202/Norgeskart.jpeg
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
   .login-card {
       position: absolute; inset: 0; margin: auto;
       max-width: 420px; height: fit-content;
       background: #fff; border: 2px solid #3b82f6;
       border-radius: 14px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,.08);
   }
+  
   .btn-primary   { background:#3b82f6; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
   .btn-secondary { background:#475569; color:#fff; border:none; padding:10px 16px; border-radius:8px; }
   .btn-block { width:100%; display:block; text-align:center; }
@@ -23,8 +37,8 @@
 
 <div class="hero">
   <div class="login-card">
-    <h2 style="margin:0 0 4px 0;">Welcome</h2>
-    <p class="muted" style="margin:0 0 16px 0;">Log in as <strong>Pilot</strong></p>
+    <h2 class="text-center text-2xl font-semibold">Welcome</h2>
+   
 
     <!-- Pilot-login form (direkte på førstesiden) -->
     <form asp-action="PilotLogin" method="post">
@@ -49,10 +63,17 @@
 
     <!-- To knapper til egne login-sider -->
     <div class="rowgap">
-      <a asp-action="Registerforer" class="btn-secondary btn-block">Log in as registerfører</a>
+      <a asp-action="Registerforer" class="btn-secondary btn-block">Log in as registrar</a>
       <a asp-action="Admin"         class="btn-secondary btn-block">Log in as admin</a>
     </div>
   </div>
 </div>
+
+<!-- Full bredde footer -->
+<footer class="text-white bg-success py-3 fixed-bottom w-100 ps-4">
+  &copy; 2025 - Programmeringsprosjekt - Gruppe 11
+</footer>
+
+
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
