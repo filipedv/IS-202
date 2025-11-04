@@ -12,7 +12,7 @@ services:
       MARIADB_ROOT_PASSWORD: rootsecret
     volumes:
       - dbdata:/var/lib/mysql
-    # Du trenger egentlig ikke eksponere DB-porten utenfra, men ta den med om dere vil bruke en lokal klient
+    # Åpne DB-porten hvis dere vil bruke en lokal klient:
     # ports:
     #   - "3306:3306"
     healthcheck:
@@ -32,12 +32,25 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ASPNETCORE_URLS: "http://+:8080"
-      # Viktig: connection string som appen leser i Program.cs
-      ConnectionStrings__DefaultConnection: "server=db;port=3306;database=appdb;user=appuser;password=appsecret;AllowUserVariables=True;TreatTinyAsBoolean=false"
-    ports:
-      - "8080:8080"
+      
 
+      # Lytt på både HTTP og HTTPS i containeren
+      ASPNETCORE_URLS: "https://+:8443"
+
+      # Kestrel-sertifikat (PFX) – monteres inn på /https/devcert.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/devcert.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${DEV_CERT_PASSWORD:-devpass}
+
+      # DB-connection string
+      ConnectionStrings__DefaultConnection: "server=db;port=3306;database=appdb;user=appuser;password=appsecret;AllowUserVariables=True;TreatTinyAsBoolean=false"
+
+    ports:
+      # Host → Container
+      - "${HTTPS_PORT:-8443}:8443"
+
+    volumes:
+      # Monter dev-sertifikatet fra repoet (sørg for at filen finnes)
+      - "${DEV_CERT_PATH:-./certs/devcert.pfx}:/https/devcert.pfx:ro"
 
 volumes:
   dbdata:
