@@ -41,7 +41,7 @@ namespace OBLIG1.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
            
-            return RedirectToAction("Overview", "Obstacle"); // f.eks. oversiktssiden
+            return RedirectToAction("Index", "Registerforer"); // Egen side til registerfører
         }
 
         // Admin – egen innloggingsside
