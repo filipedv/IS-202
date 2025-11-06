@@ -5,7 +5,7 @@ namespace OBLIG1.Models;
 
 public class Obstacle
 {
-    public int Id { get; set; }                       // PK (kreves for EF)
+    public int Id { get; set; } // PK (kreves for EF)
     [Required, StringLength(100)]
     public string Name { get; set; } = "";
     

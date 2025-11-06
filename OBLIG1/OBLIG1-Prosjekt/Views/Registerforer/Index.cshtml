@@ -1,16 +1,31 @@
 @using OBLIG1.Models
-@model IEnumerable<OBLIG1.Models.Registerforer>
-
-
+@model IEnumerable<OBLIG1.Models.Obstacle>
 
 @{
     ViewData["Title"] = "Registerfører - Dashboard";
 }
 
 <div class="container mt-5">
-    <h1 class="text-3xl font-bold mb-3 text-success">Welcome, Registrar!</h1>
+    <h1 class="text-3xl font-bold mb-3 text-success">Welcome, Registrar!</h1>  
 
-    <div class="mt-4 d-flex gap-3">
-        <a asp-action="Overview" asp-controller="Obstacle" class="btn btn-primary">Obstacle Overview</a>
-    </div>
+    
+    <!-- liste med registrerte hinder -->
+    @if (Model != null && Model.Any())
+    {
+        <ul class="list-group mt-3">
+            @foreach (var obstacle in Model)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a asp-controller="Obstacle" asp-action="Details" asp-route-id="@obstacle.Id" class="text-decoration-none">
+                        @obstacle.Name
+                    </a>
+                    <span class="badge bg-primary rounded-pill">View</span>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted mt-4">No obstacles registered yet.</p>
+    }
 </div>
