@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using OBLIG1.Models; // ← gir tilgang til Obstacle-entity
+using OBLIG1.Models; // gir tilgang til Obstacle-entity
 
 namespace OBLIG1.Data;
 
@@ -7,6 +7,7 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
     
-    public DbSet<Obstacle> Obstacles => Set<Obstacle>();   // Tabellen "Obstacles"
+    public DbSet<Obstacle> Obstacles => Set<Obstacle>(); // Tabellen "Obstacles"
+    public DbSet<Registerforer> Registerforere => Set<Registerforer>(); // Tabell over Obstacles for Registerfører
 }
 

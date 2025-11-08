@@ -5,10 +5,11 @@ namespace OBLIG1.Models;
 
 public class Obstacle
 {
-    public int Id { get; set; } // PK (kreves for EF)
+    public int Id { get; set; } // PK (Kreves for EF)
+
     [Required, StringLength(100)]
     public string Name { get; set; } = "";
-    
+
     [Range(0, 200)]
     public double Height { get; set; }
 
@@ -22,4 +23,10 @@ public class Obstacle
     public string? GeometryGeoJson { get; set; }
 
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+
+    // Fremmednøkkel til Registerforer
+    public int RegisterforerId { get; set; }
+
+    // Navigasjonsfelt
+    public Registerforer Registerforer { get; set; }
 }
