@@ -37,7 +37,7 @@ namespace OBLIG1.Migrations
                     b.Property<string>("GeometryGeoJson")
                         .HasColumnType("longtext");
 
-                    b.Property<double>("Height")
+                    b.Property<double?>("Height")
                         .HasColumnType("double");
 
                     b.Property<bool>("IsDraft")
@@ -50,6 +50,10 @@ namespace OBLIG1.Migrations
 
                     b.Property<DateTime>("RegisteredAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
 

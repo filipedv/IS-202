@@ -1,0 +1,189 @@
+@model OBLIG1.Models.ObstacleEditViewModel
+@{
+    ViewData["Title"] = "Edit obstacle";
+    ViewData["HideChrome"] = false; // vis gjerne header/footer her
+}
+
+@section Styles {
+  <style>
+    /* Kun for denne siden */
+    .edit-wrap{
+      display:grid; gap:18px;
+      grid-template-columns: 1fr;
+    }
+    .edit-card{ background:#fff; border-radius:14px; border:1px solid #e5e7eb; padding:16px; }
+
+    #edit-map{ height: 520px; border-radius:12px; border:1px solid #e5e7eb; }
+
+    .map-toolbar{
+      display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;
+    }
+
+    @@media (min-width: 992px){
+      .edit-wrap{ grid-template-columns: 1.25fr 1fr; } /* map + form ved siden av hverandre på store skjermer */
+    }
+  </style>
+}
+
+<div class="container my-4">
+  <h2 class="mb-3">@ViewData["Title"]</h2>
+
+  <div class="edit-wrap">
+    <!-- VENSTRE: kart + verktøy -->
+    <div class="edit-card">
+      <div class="map-toolbar">
+        <button type="button" id="btn-marker" class="btn btn-sm btn-primary">New marker</button>
+        <button type="button" id="btn-line"   class="btn btn-sm btn-outline-primary">New line</button>
+        <button type="button" id="btn-edit"   class="btn btn-sm btn-outline-secondary">Edit geometry</button>
+        <button type="button" id="btn-clear"  class="btn btn-sm btn-outline-danger">Clear</button>
+      </div>
+
+      <div id="edit-map"></div>
+    </div>
+
+    <!-- HØYRE: skjema -->
+    <div class="edit-card">
+      <form asp-action="Edit" method="post" id="editForm" novalidate>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="GeometryGeoJson" id="GeometryGeoJson" />
+
+        <div class="mb-3">
+          <label asp-for="Name" class="form-label"></label>
+          <input asp-for="Name" class="form-control" />
+          <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+          <label asp-for="Type" class="form-label"></label>
+          <select asp-for="Type" asp-items="Model.TypeOptions" class="form-select"></select>
+          <span asp-validation-for="Type" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+          <label asp-for="HeightFt" class="form-label"></label>
+          <div class="input-group">
+            <input asp-for="HeightFt" class="form-control" type="number" min="0" step="1" />
+            <span class="input-group-text">ft</span>
+          </div>
+          <div class="form-text">
+            ≈ <span id="heightMeters">0</span> m
+          </div>
+          <span asp-validation-for="HeightFt" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+          <label asp-for="Description" class="form-label"></label>
+          <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+          <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" asp-for="IsDraft" type="checkbox" />
+          <label class="form-check-label" asp-for="IsDraft"></label>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <a asp-action="Overview" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+
+  <!-- Leaflet + Leaflet.Draw -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+  <script>
+    // --- Kart ---
+    const map = L.map('edit-map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const drawnItems = new L.FeatureGroup().addTo(map);
+
+    // Last eksisterende GeoJSON fra modellen (om finnes)
+    const existing = @Html.Raw(string.IsNullOrWhiteSpace(Model.GeometryGeoJson) ? "null" : Model.GeometryGeoJson);
+    if (existing) {
+      const layer = L.geoJSON(existing, {
+        onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)
+      }).addTo(map);
+      try {
+        const b = layer.getBounds();
+        if (b.isValid()) map.fitBounds(b.pad(0.2)); else map.setView([59.9139, 10.7461], 13);
+      } catch { map.setView([59.9139, 10.7461], 13); }
+    } else {
+      map.setView([59.9139, 10.7461], 13);
+    }
+
+    // Draw-handlers
+    const drawMarker = new L.Draw.Marker(map, {
+      icon: new L.Icon.Default()
+    });
+    const drawPolyline = new L.Draw.Polyline(map, {
+      shapeOptions: { color: '#2563eb', weight: 4 }
+    });
+
+    let editToolbar = null, deleteToolbar = null;
+    function disableModes(){
+      if (editToolbar)   { editToolbar.disable();   editToolbar = null; }
+      if (deleteToolbar) { deleteToolbar.disable(); deleteToolbar = null; }
+    }
+
+    // Hendelser
+    map.on(L.Draw.Event.CREATED, e => {
+      drawnItems.addLayer(e.layer);
+      syncGeo();
+    });
+    map.on('draw:edited',  syncGeo);
+    map.on('draw:deleted', syncGeo);
+
+    function syncGeo(){
+      const fc = drawnItems.toGeoJSON();
+      document.getElementById('GeometryGeoJson').value = JSON.stringify(fc);
+      // reflow om nødvendig
+      setTimeout(()=> map.invalidateSize(), 50);
+    }
+
+    // Toolbar-knapper
+    document.getElementById('btn-marker').addEventListener('click', () => {
+      disableModes(); drawMarker.enable();
+    });
+    document.getElementById('btn-line').addEventListener('click', () => {
+      disableModes(); drawPolyline.enable();
+    });
+    document.getElementById('btn-edit').addEventListener('click', () => {
+      disableModes();
+      editToolbar = new L.EditToolbar.Edit(map, { featureGroup: drawnItems });
+      editToolbar.enable();
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      disableModes(); drawnItems.clearLayers(); syncGeo();
+    });
+
+    // Før submit: sørg for at GeoJSON er oppdatert
+    document.getElementById('editForm').addEventListener('submit', syncGeo);
+
+    // Live konvertering ft -> m i UI
+    function ftToM(ft){ return (ft / 3.28084); }
+    const ftInput = document.getElementById('HeightFt');
+    const mOut = document.getElementById('heightMeters');
+    function updateMeters(){
+      const v = parseFloat(ftInput?.value);
+      if (isNaN(v)) { mOut.textContent = "0"; return; }
+      mOut.textContent = ftToM(v).toFixed(2);
+    }
+    if (ftInput){ updateMeters(); ftInput.addEventListener('input', updateMeters); }
+
+    // Reflow når vinduet endres
+    window.addEventListener('resize', () => map.invalidateSize());
+  </script>
+}
