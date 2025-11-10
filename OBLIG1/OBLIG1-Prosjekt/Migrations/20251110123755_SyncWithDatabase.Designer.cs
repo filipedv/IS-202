@@ -12,8 +12,8 @@ using OBLIG1.Data;
 namespace OBLIG1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110111915_AddRegisterforerRelationToObstacle")]
-    partial class AddRegisterforerRelationToObstacle
+    [Migration("20251110123755_SyncWithDatabase")]
+    partial class SyncWithDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

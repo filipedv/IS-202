@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OBLIG1.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRegisterforerRelationToObstacle : Migration
+    public partial class SyncWithDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
