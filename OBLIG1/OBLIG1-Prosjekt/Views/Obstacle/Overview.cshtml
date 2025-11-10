@@ -22,90 +22,33 @@ else
     <h2 class="mb-3">Overview</h2>
 
     <div class="table-responsive">
-      <table class="table table-striped align-middle">
-        <thead>
-          <tr>
-            <th>Obstacle</th>
-            <th>Height (m)</th>
-            <th>Draft?</th>
-            <th>Registered</th>
-            <th>Preview</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        @foreach (var o in items)
-        {
-            var collapseId = $"prev-{o.Id}";
-            var mapId = $"map-{o.Id}";
-            <tr data-geo='@Html.Raw(o.GeometryGeoJson ?? "null")'>
-              <td>@o.Name</td>
-              <td>@o.Height</td>
-              <td>@(o.IsDraft ? "Yes" : "No")</td>
-              <td>@o.RegisteredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-              <td>
-                <button class="btn btn-sm btn-outline-secondary"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#@collapseId"
-                        aria-expanded="false"
-                        aria-controls="@collapseId">
-                  Map
-                </button>
-              </td>
-              <td class="text-end">
-                <a class="btn btn-sm btn-primary"
-                   asp-controller="Obstacle" asp-action="Edit" asp-route-id="@o.Id">Edit</a>
-              </td>
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th>Obstacle</th>
+                <th>Height (m)</th>
+                <th>Draft?</th>
+                <th>Registered</th>
+                <th class="text-end">Actions</th>
             </tr>
-            <tr class="collapse" id="@collapseId">
-              <td colspan="6">
-                <div id="@mapId" style="height: 260px; border-radius:12px; border:1px solid #e5e7eb;"></div>
-              </td>
-            </tr>
-        }
-        </tbody>
-      </table>
-    </div>
-
-    @section Scripts {
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-      <script>
-        // Når en preview-rad åpnes første gang, lag et lite Leaflet-kart
-        document.addEventListener('shown.bs.collapse', function (ev) {
-          const row = ev.target;                    // <tr id="prev-...">
-          const mapDiv = row.querySelector('div[id^="map-"]');
-          if (!mapDiv || mapDiv.dataset.init) return;
-
-          // Finn geojson fra raden over (forrige sibling)
-          const dataRow = row.previousElementSibling;
-          const geoRaw = dataRow?.getAttribute('data-geo');
-
-          const m = L.map(mapDiv).setView([59.9139, 10.7461], 13);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-          }).addTo(m);
-
-          if (geoRaw && geoRaw !== 'null' && geoRaw.trim() !== '') {
-            try {
-              const parsed = JSON.parse(geoRaw);
-              const layer = L.geoJSON(parsed, {
-                pointToLayer: function (feature, latlng) { return L.marker(latlng); }
-              }).addTo(m);
-              if (layer.getBounds && layer.getLayers && layer.getLayers().length) {
-                const b = layer.getBounds();
-                if (b.isValid()) m.fitBounds(b.pad(0.2));
-              }
-            } catch (e) {
-              console.warn('Invalid GeoJSON for', mapDiv.id, e);
+            </thead>
+            <tbody>
+            @foreach (var o in items)
+            {
+                <tr>
+                    <td>@o.Name</td>
+                    <td>@(o.Height?.ToString("0.##") ?? "-")</td>
+                    <td>@(o.IsDraft ? "Yes" : "No")</td>
+                    <td>@o.RegisteredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="Obstacle"
+                           asp-action="Edit"
+                           asp-route-id="@o.Id">Edit</a>
+                    </td>
+                </tr>
             }
-          }
-
-          mapDiv.dataset.init = '1';
-          // Sikre reflow hvis containeren har endret høyde
-          setTimeout(() => m.invalidateSize(), 100);
-        });
-      </script>
-    }
+            </tbody>
+        </table>
+    </div>
 }
