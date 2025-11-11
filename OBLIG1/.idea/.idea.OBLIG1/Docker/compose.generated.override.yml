@@ -1,0 +1,22 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.9"
+services:
+  oblig1:
+    build:
+      context: "/Users/jj/Documents/GitHub/IS-202/OBLIG1"
+      dockerfile: "OBLIG1-Prosjekt/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/OBLIG1-Prosjekt.dll"
+    environment:
+      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net9.0/OBLIG1-Prosjekt.staticwebassets.runtime.CT.json"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "oblig1:dev"
+    ports: []
+    volumes:
+    - "/Users/jj/Documents/GitHub/IS-202/OBLIG1/OBLIG1-Prosjekt:/app:rw"
+    - "/Users/jj/Documents/GitHub/IS-202/OBLIG1:/src:rw"
+    - "/Users/jj/.nuget/packages:/root/.nuget/packages"
+    working_dir: "/app"

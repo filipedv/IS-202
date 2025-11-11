@@ -1,6 +1,5 @@
 @model OBLIG1.Controllers.LoginVm
 @{
-    // Parametre som hver view kan sette
     var role = (string?)ViewData["Role"] ?? "Pilot";
     var postAction = (string?)ViewData["PostAction"] ?? "PilotLogin";
     var showAltButtons = (ViewData["ShowAltButtons"] as bool?) ?? true;
@@ -20,11 +19,45 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <div class="field">
+            <div class="field" style="position: relative;">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" autocomplete="current-password" />
+                <input asp-for="Password" id="PasswordInput" type="password" autocomplete="current-password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
+
+                <button type="button" id="togglePasswordBtn" class="btn_view" aria-pressed="false"
+                        style="position:absolute; right:8px; top:50%; transform:translateY(-50%);">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Eye closed (hidden) -->
+                        <g class="eyeClosed">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+                        </g>
+                        <!-- Eye open (visible) -->
+                        <g class="eyeOpen" style="display:none;">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M1 12s4-9 11-9 11 9 11 9-4 9-11 9-11-9-11-9z"/>
+                        </g>
+                    </svg>
+                </button>
+
             </div>
+
+            <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const pwBtn = document.getElementById('togglePasswordBtn');
+    const pwInput = document.getElementById('PasswordInput');
+    const eyeClosed = pwBtn.querySelector('.eyeClosed');
+    const eyeOpen = pwBtn.querySelector('.eyeOpen');
+
+    pwBtn.addEventListener('click', function() {
+        const isHidden = pwInput.type === 'password';
+        pwInput.type = isHidden ? 'text' : 'password';
+        eyeClosed.style.display = isHidden ? 'none' : 'inline';
+        eyeOpen.style.display = isHidden ? 'inline' : 'none';
+    });
+});
+</script>
+
 
             <button type="submit" class="btn-primary btn-block">Log in</button>
         </form>
@@ -33,15 +66,13 @@
 
         @if (showAltButtons)
         {
-            <!-- Landingssiden: to valg -->
             <div class="rowgap">
                 <a asp-controller="Auth" asp-action="Registerforer" class="btn-secondary btn-block">Log in as Registerfører</a>
-                <a asp-controller="Auth" asp-action="Admin"         class="btn-secondary btn-block">Log in as Admin</a>
+                <a asp-controller="Auth" asp-action="Admin" class="btn-secondary btn-block">Log in as Admin</a>
             </div>
         }
         else
         {
-            <!-- Undersider: tilbake-knapp -->
             <div class="rowgap">
                 <a asp-controller="Auth" asp-action="Index" class="btn-secondary btn-block">Tilbake</a>
             </div>
@@ -49,4 +80,27 @@
     </div>
 </div>
 
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+<style>
+.field { margin-bottom: 16px; position: relative; }
+.btn_view { background:none; border:none; cursor:pointer; padding:0; }
+.btn_view svg { width: 20px; height: 20px; }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const pwBtn = document.getElementById('togglePasswordBtn');
+            const pwInput = document.getElementById('PasswordInput');
+            const eyeClosed = pwBtn.querySelector('.eyeClosed');
+            const eyeOpen = pwBtn.querySelector('.eyeOpen');
+
+            pwBtn.addEventListener('click', function() {
+                const isHidden = pwInput.type === 'password';
+                pwInput.type = isHidden ? 'text' : 'password';
+                eyeClosed.style.display = isHidden ? 'none' : 'inline';
+                eyeOpen.style.display = isHidden ? 'inline' : 'none';
+            });
+        });
+    </script>
+}
