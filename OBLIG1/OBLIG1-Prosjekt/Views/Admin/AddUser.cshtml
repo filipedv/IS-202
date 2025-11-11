@@ -5,6 +5,14 @@
 }
 
 <h1>Add User</h1>
+<style>
+    h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #333;
+    }
+    </style>
 
 <form asp-action="AddUser" method="post">
     <div class="mb-3">
@@ -29,6 +37,7 @@
         <label asp-for="IsBlocked" class="form-check-label">Blocked</label>
     </div>
 
-    <button type="submit" class="btn btn-success">Add User</button>
+    <button type="submit" class="btn btn-primary">Add User</button>
     <a href="/Admin/Users" class="btn btn-secondary">Cancel</a>
+   
 </form>
