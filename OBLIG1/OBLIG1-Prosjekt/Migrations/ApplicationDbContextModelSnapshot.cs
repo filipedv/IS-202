@@ -51,51 +51,9 @@ namespace OBLIG1.Migrations
                     b.Property<DateTime>("RegisteredAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("RegisterforerId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("RegisterforerId");
-
-                    b.ToTable("Obstacles");
-                });
-
-            modelBuilder.Entity("OBLIG1.Models.Registerforer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Epost")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Navn")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Registerforere");
-                });
-
-            modelBuilder.Entity("OBLIG1.Models.Obstacle", b =>
-                {
-                    b.HasOne("OBLIG1.Models.Registerforer", "Registerforer")
-                        .WithMany("Obstacles")
-                        .HasForeignKey("RegisterforerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Registerforer");
-                });
-
-            modelBuilder.Entity("OBLIG1.Models.Registerforer", b =>
-                {
-                    b.Navigation("Obstacles");
+                    b.ToTable("Obstacles", (string)null);
                 });
 #pragma warning restore 612, 618
         }
