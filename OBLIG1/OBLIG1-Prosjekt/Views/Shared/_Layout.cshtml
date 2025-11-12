@@ -33,36 +33,6 @@
 
 <body class="page-fullscreen d-flex flex-column min-vh-100 @( (ViewData["HideChrome"] as bool?) == true ? "no-chrome" : "" )"
       style="margin:0;">
-    @* Global header/nav (skjules når HideChrome = true) *@
-    @if (!(ViewData["HideChrome"] as bool? ?? false))
-    {
-        <header>
-            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3" aria-label="Main navigation">
-                <div class="container-fluid">
-                    <a class="navbar-brand" asp-controller="Home" asp-action="Index">OBLIG1</a>
-
-                    <div class="navbar-collapse" id="mainNav">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="DataForm">Register Obstacle</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-decoration-underline" asp-controller="Obstacle" asp-action="Overview">Overview</a>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link text-decoration-underline" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-    }
     
     @* Main-innhold *@
     <main id="main" role="main"
@@ -71,17 +41,7 @@
         @RenderBody()
     </main>
 
-
-    @* Global footer (skjules når HideChrome = true) *@
-    @if (!(ViewData["HideChrome"] as bool? ?? false))
-    {
-        <footer class="border-top footer text-muted">
-            <div class="container">
-                &copy; 2025 - OBLIG1-Prosjekt -
-                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-            </div>
-        </footer>
-    }
+    
 
     @* Side-spesifikk, flytende footer for actions (vises kun hvis siden definerer @section PageFooter) *@
     @if (IsSectionDefined("PageFooter"))

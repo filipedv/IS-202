@@ -137,3 +137,8 @@ body.page-fullscreen { margin: 0; }
 @media (max-width: 420px){
     .icon-btn{ min-width: 160px; padding: 14px 18px; font-size: 1rem; }
 }
+
+.leaflet-control-zoom {
+    transform: scale(1.35);      /* 1.0 = original */
+    transform-origin: top left;  /* behold posisjonen */
+}
