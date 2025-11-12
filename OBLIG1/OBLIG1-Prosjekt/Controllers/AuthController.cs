@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OBLIG1.Data;
 using OBLIG1.Models;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+
+
 
 namespace OBLIG1.Controllers
 {
@@ -21,6 +24,36 @@ namespace OBLIG1.Controllers
         {
             _context = context;
         }
+        
+        //Forgot Password
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ModelState.AddModelError("", "Please enter your email address.");
+                return View();
+            }
+
+            // Example: find user and send reset link
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "No account found with that email.");
+                return View();
+            }
+
+            // TODO: generate and email reset token (for now, simulate)
+            ViewBag.Message = "Password reset link sent to your email.";
+            return View();
+        }
+
 
         // Pilot login page (default)
         [HttpGet]
