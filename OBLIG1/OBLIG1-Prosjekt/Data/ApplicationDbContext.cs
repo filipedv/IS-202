@@ -7,6 +7,6 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
     
-    public DbSet<Obstacle> Obstacles => Set<Obstacle>();   // Tabellen "Obstacles"
+    public DbSet<Obstacle> Obstacles => Set<Obstacle>(); // Tabellen "Obstacles"
 }
 

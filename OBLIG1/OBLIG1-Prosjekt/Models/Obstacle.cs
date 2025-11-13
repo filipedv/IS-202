@@ -10,6 +10,7 @@ namespace OBLIG1.Models
         [Required, StringLength(100)]
         public string Name { get; set; } = "";
 
+        
         // Lagres i METER i DB. Gjør nullable siden Edit-skjemaet har Height i fot som kan stå tomt.
         [Range(0, 2000)]
         public double? Height { get; set; }
@@ -22,6 +23,7 @@ namespace OBLIG1.Models
         [StringLength(100)]
         public string? Type { get; set; }
 
+        
         // NB: bruk samme casing som i resten av koden (…GeoJson, ikke …GeoJSON)
         [Column(TypeName = "longtext")]
         public string? GeometryGeoJson { get; set; }

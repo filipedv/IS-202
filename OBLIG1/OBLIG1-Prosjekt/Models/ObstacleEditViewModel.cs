@@ -15,6 +15,7 @@ namespace OBLIG1.Models
         [StringLength(1000)]
         public string? Description { get; set; }
 
+        
         // Vises i skjemaet (lagres som meter i entiteten i controlleren)
         [Display(Name = "Height (feet)")]
         [Range(0, 60000)]
@@ -27,10 +28,12 @@ namespace OBLIG1.Models
         [Display(Name = "Draft")]
         public bool IsDraft { get; set; }
 
+        
         // Viktig: samme casing som i entiteten (GeometryGeoJson)
         // Innholdet settes/oppdateres av kartet i Edit.cshtml
         public string? GeometryGeoJson { get; set; }
 
+        
         // Kilde for dropdown "Type"
         public IEnumerable<SelectListItem> TypeOptions { get; set; } = Enumerable.Empty<SelectListItem>();
     }

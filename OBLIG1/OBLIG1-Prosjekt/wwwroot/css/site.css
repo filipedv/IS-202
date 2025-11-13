@@ -10,8 +10,10 @@ html { font-size: 14px; }
 html, body { height: 100%; }
 html { position: relative; min-height: 100%; }
 
+
 /* Ikke ekstra bunnmargin – vi bruker egen flytende footer */
 body { margin-bottom: 0 !important; }
+
 
 /* ===== Forms ===== */
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -49,19 +51,24 @@ body { margin-bottom: 0 !important; }
 .btn-secondary { background:#475569; }
 .btn-block { width:100%; display:block; text-align:center; }
 
+
 /* Skjul global footer-margin når chrome er skjult */
 .no-chrome { margin-bottom: 0; }
+
 
 /* ===== Page footer + kart-høyde ===== */
 :root { --action-footer-space: 120px; }              /* juster ved behov */
 .with-action-footer { padding-bottom: var(--action-footer-space); }
 
+
 /* Kart (Home + DataForm) – bruk all høyde minus plass for actions-footer */
 .home-map { height: calc(100svh - var(--action-footer-space)); min-height: 380px; }
 .form-map { height: calc(100svh - var(--action-footer-space)); min-height: 380px; }
 
+
 /* Fjern ekstra bunnmargin som kunne lage hvit stripe */
 .home-section { margin-bottom: 0 !important; }
+
 
 /* Flytende handlingsfooter */
 .page-actions{
@@ -98,6 +105,7 @@ body { margin-bottom: 0 !important; }
 }
 .icon-btn svg{ display:block; }
 @media (min-width: 1200px){ .icon-btn{ min-width: 72px; height: 64px; } }
+
 
 /* Tilleggsnyttig */
 body.page-fullscreen { margin: 0; }

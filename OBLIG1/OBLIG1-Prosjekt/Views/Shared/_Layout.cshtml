@@ -11,18 +11,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - OBLIG1-Prosjekt</title>
 
+    
     <!-- Tailwind først -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     @RenderSection("Styles", required: false)
 
+    
     <!-- Deretter Bootstrap (for komponenter/utility-klasser) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
+    
     <!-- Eget stilark -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OBLIG1-Prosjekt.styles.css" asp-append-version="true" />
 
+    
     <!-- Leaflet base CSS (Draw-assets lastes i de sidene som trenger det) -->
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -40,9 +44,8 @@
           style="min-height:0;">
         @RenderBody()
     </main>
-
     
-
+    
     @* Side-spesifikk, flytende footer for actions (vises kun hvis siden definerer @section PageFooter) *@
     @if (IsSectionDefined("PageFooter"))
     {
@@ -56,10 +59,12 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    
     <!-- Leaflet base JS (Leaflet.Draw lastes på de sidene som trenger det) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    
     @* Dynamisk reservering av plass nederst til .page-actions (og tving reflow av kart) *@
     <script>
         (function () {

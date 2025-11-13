@@ -26,11 +26,11 @@ namespace OBLIG1.Controllers
         {
             if (!ModelState.IsValid) return View("Index", vm);
 
-            
-            // if (OK) -> redirect til pilot-dashboard
+        // if (OK) -> redirect til pilot-dashboard
             return RedirectToAction("Index", "Home"); // midlertidig
         }
 
+        
         // Registerfører – egen innloggingsside
         [HttpGet]
         public IActionResult Registerforer() => View(new LoginVm());
@@ -44,6 +44,7 @@ namespace OBLIG1.Controllers
             return RedirectToAction("Overview", "Obstacle"); // f.eks. oversiktssiden
         }
 
+        
         // Admin – egen innloggingsside
         [HttpGet]
         public IActionResult Admin() => View(new LoginVm());

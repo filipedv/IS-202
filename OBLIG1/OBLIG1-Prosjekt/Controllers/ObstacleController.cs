@@ -36,7 +36,7 @@ namespace OBLIG1.Controllers
                 Description     = vm.ObstacleDescription ?? string.Empty,
                 IsDraft         = vm.IsDraft,
                 Type            = null, // settes i Edit
-                GeometryGeoJson = vm.GeometryGeoJson,            // <-- VIKTIG: lagre geometri ved opprettelse
+                GeometryGeoJson = vm.GeometryGeoJson, // <-- VIKTIG: lagre geometri ved opprettelse
                 RegisteredAt    = DateTime.UtcNow
             };
 
@@ -46,6 +46,7 @@ namespace OBLIG1.Controllers
             return RedirectToAction(nameof(Overview));
         }
 
+        
         // ===============
         // Overview (Liste)
         // ===============
@@ -60,6 +61,7 @@ namespace OBLIG1.Controllers
             return View(list);
         }
 
+        
         // =========
         // Edit (Form)
         // =========
@@ -88,13 +90,14 @@ namespace OBLIG1.Controllers
                 HeightFt = e.Height.HasValue ? (int)Math.Round(e.Height.Value * 3.28084) : null, // m -> ft
                 Type = e.Type,
                 IsDraft = e.IsDraft,
-                GeometryGeoJson = e.GeometryGeoJson,            // <-- VIKTIG: send geometri til Edit-kartet
+                GeometryGeoJson = e.GeometryGeoJson, // <-- VIKTIG: send geometri til Edit-kartet
                 TypeOptions = GetTypeOptions(e.Type)
             };
 
             return View(vm); // Views/Obstacle/Edit.cshtml (med kart)
         }
 
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ObstacleEditViewModel vm)
@@ -114,7 +117,7 @@ namespace OBLIG1.Controllers
             e.Type        = vm.Type;
             e.Height      = vm.HeightFt.HasValue ? vm.HeightFt.Value / 3.28084 : null; // ft -> m
 
-            e.GeometryGeoJson = vm.GeometryGeoJson;            // <-- VIKTIG: lagre redigert geometri
+            e.GeometryGeoJson = vm.GeometryGeoJson; // <-- VIKTIG: lagre redigert geometri
 
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Overview));

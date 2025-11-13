@@ -32,6 +32,7 @@
     <div id="map" class="form-map w-100"></div>
   </div>
 
+  
   <!-- Skjult form – sender GeoJSON tilbake til server -->
   <form asp-action="DataForm" method="post" id="obstacleForm">
     @Html.AntiForgeryToken()
@@ -42,6 +43,7 @@
 @section PageFooter {
   <div class="page-actions-bar">
 
+    
     <!-- BACK (samme farge/stil som Delete) -->
     <a asp-controller="Home" asp-action="Index"
        class="btn icon-btn btn-secondary" aria-label="Back" title="Back">
@@ -54,6 +56,7 @@
       <span class="label">Back</span>
     </a>
 
+    
     <!-- POINT -->
     <button type="button" class="btn icon-btn btn-primary" id="btn-marker" aria-label="Point" title="Point">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -62,6 +65,7 @@
       <span class="label">Point</span>
     </button>
 
+    
     <!-- LINE -->
     <button type="button" class="btn icon-btn btn-primary" id="btn-line" aria-label="Line" title="Line">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -74,6 +78,7 @@
       <span class="label">Line</span>
     </button>
 
+    
     <!-- DELETE (uendret stil) -->
     <button type="button" class="btn icon-btn btn-secondary" id="btn-delete" aria-label="Delete" title="Delete">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -82,6 +87,7 @@
       <span class="label">Delete</span>
     </button>
 
+    
     <!-- SUBMIT -->
     <button type="button" class="btn icon-btn btn-primary" id="btn-submit" aria-label="Submit" title="Submit">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
