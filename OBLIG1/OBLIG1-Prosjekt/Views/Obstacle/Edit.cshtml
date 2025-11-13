@@ -242,4 +242,21 @@
     // Reflow ved resize
     window.addEventListener('resize', () => map.invalidateSize());
   </script>
+  
+  @if (Model.CanEditStatus)
+  {
+    <div class="mb-3">
+      <label asp-for="Status" class="form-label"></label>
+      <select asp-for="Status" asp-items="Model.StatusOptions" class="form-select"></select>
+      <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+  }
+  else
+  {
+    <div class="mb-3">
+      <label class="form-label">Status</label>
+      <input class="form-control" value="@Model.Status" disabled />
+    </div>
+  }
 }
+
