@@ -34,7 +34,6 @@ namespace OBLIG1.Controllers
                 Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
                 Height          = (vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight, // meter i DB (double?)
                 Description     = vm.ObstacleDescription ?? string.Empty,
-                IsDraft         = vm.IsDraft,
                 Type            = null, // settes i Edit
                 GeometryGeoJson = vm.GeometryGeoJson, // <-- VIKTIG: lagre geometri ved opprettelse
                 RegisteredAt    = DateTime.UtcNow
@@ -89,7 +88,6 @@ namespace OBLIG1.Controllers
                 Description = e.Description,
                 HeightFt = e.Height.HasValue ? (int)Math.Round(e.Height.Value * 3.28084) : null, // m -> ft
                 Type = e.Type,
-                IsDraft = e.IsDraft,
                 GeometryGeoJson = e.GeometryGeoJson, // <-- VIKTIG: send geometri til Edit-kartet
                 TypeOptions = GetTypeOptions(e.Type)
             };
@@ -113,7 +111,6 @@ namespace OBLIG1.Controllers
 
             e.Name        = vm.Name;
             e.Description = vm.Description;
-            e.IsDraft     = vm.IsDraft;
             e.Type        = vm.Type;
             e.Height      = vm.HeightFt.HasValue ? vm.HeightFt.Value / 3.28084 : null; // ft -> m
 
