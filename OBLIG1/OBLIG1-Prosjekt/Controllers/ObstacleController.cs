@@ -9,13 +9,15 @@ using OBLIG1.Models;
 
 namespace OBLIG1.Controllers
 {
-    [Authorize(Roles = "Pilot,Registerforer")] // begge må være logget inn og i en av rollene
+    // Kun innloggede brukere i én av disse rollene får tilgang
+    [Authorize(Roles = "Pilot,Registerforer")]
     public class ObstacleController : Controller
     {
         private readonly ApplicationDbContext _db;
         public ObstacleController(ApplicationDbContext db) => _db = db;
 
         // ---------- DataForm (Create via kart) ----------
+
         [HttpGet]
         public IActionResult DataForm() => View(new ObstacleData());
 
@@ -25,7 +27,8 @@ namespace OBLIG1.Controllers
         {
             if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
             {
-                ModelState.AddModelError(nameof(vm.GeometryGeoJson), "Draw the obstacle on the map before submitting.");
+                ModelState.AddModelError(nameof(vm.GeometryGeoJson),
+                    "Draw the obstacle on the map before submitting.");
                 return View(vm);
             }
 
@@ -36,11 +39,11 @@ namespace OBLIG1.Controllers
                 Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
                 Height          = (vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight,
                 Description     = vm.ObstacleDescription ?? string.Empty,
-                Type            = null,
+                Type            = null, // settes i Edit-skjemaet
                 GeometryGeoJson = vm.GeometryGeoJson,
                 RegisteredAt    = DateTime.UtcNow,
                 CreatedByUserId = userId,
-                Status          = ObstacleStatus.Pending
+                Status          = ObstacleStatus.Pending // default status
             };
 
             _db.Obstacles.Add(entity);
@@ -50,14 +53,16 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- Overview (rollebasert datascope) ----------
+
         [HttpGet]
         public async Task<IActionResult> Overview()
         {
-            IQueryable<Obstacle> q = _db.Obstacles.OrderByDescending(o => o.RegisteredAt);
+            IQueryable<Obstacle> q = _db.Obstacles
+                .OrderByDescending(o => o.RegisteredAt);
 
             if (User.IsInRole("Registerforer"))
             {
-                // se alle
+                // Registrar ser alle hindere
             }
             else
             {
@@ -70,7 +75,9 @@ namespace OBLIG1.Controllers
             return View(list);
         }
 
-        // ---------- Edit ----------
+        // ---------- Edit (kart + metadata) ----------
+
+        // Dropdown for "Obstacle type"
         private static IEnumerable<SelectListItem> GetTypeOptions(string? current = null) =>
             new[]
             {
@@ -81,6 +88,7 @@ namespace OBLIG1.Controllers
                 new SelectListItem("Other",    "Other",    current == "Other"),
             };
 
+        // Dropdown for "Status"
         private static IEnumerable<SelectListItem> GetStatusOptions(ObstacleStatus current) =>
             new[]
             {
@@ -95,25 +103,28 @@ namespace OBLIG1.Controllers
             var e = await _db.Obstacles.FindAsync(id);
             if (e == null) return NotFound();
 
-            // Pilot kan bare redigere egne
+            // Pilot kan bare redigere egne hindere
             if (!User.IsInRole("Registerforer"))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (e.CreatedByUserId != userId) return Forbid();
+                if (e.CreatedByUserId != userId)
+                    return Forbid();
             }
 
             var vm = new ObstacleEditViewModel
             {
-                Id = e.Id,
-                Name = e.Name,
+                Id          = e.Id,
+                Name        = e.Name,
                 Description = e.Description,
-                HeightFt = e.Height.HasValue ? (int)Math.Round(e.Height.Value * 3.28084) : null,
-                Type = e.Type,
+                HeightFt    = e.Height.HasValue
+                                ? (int)Math.Round(e.Height.Value * 3.28084)
+                                : null,
+                Type            = e.Type,
                 GeometryGeoJson = e.GeometryGeoJson,
-                TypeOptions = GetTypeOptions(e.Type),
+                TypeOptions     = GetTypeOptions(e.Type),
 
-                // Status kun for registerfører (viser i view)
-                Status = e.Status,
+                // Status-info til view
+                Status        = e.Status,
                 StatusOptions = GetStatusOptions(e.Status),
                 CanEditStatus = User.IsInRole("Registerforer")
             };
@@ -127,26 +138,29 @@ namespace OBLIG1.Controllers
         {
             if (!ModelState.IsValid)
             {
-                vm.TypeOptions = GetTypeOptions(vm.Type);
-                vm.StatusOptions = GetStatusOptions(vm.Status);
-                vm.CanEditStatus = User.IsInRole("Registerforer");
+                vm.TypeOptions     = GetTypeOptions(vm.Type);
+                vm.StatusOptions   = GetStatusOptions(vm.Status);
+                vm.CanEditStatus   = User.IsInRole("Registerforer");
                 return View(vm);
             }
 
             var e = await _db.Obstacles.FindAsync(vm.Id);
             if (e == null) return NotFound();
 
-            // Pilot kan bare lagre egne
+            // Pilot kan bare lagre egne hindere
             if (!User.IsInRole("Registerforer"))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (e.CreatedByUserId != userId) return Forbid();
+                if (e.CreatedByUserId != userId)
+                    return Forbid();
             }
 
             e.Name        = vm.Name;
             e.Description = vm.Description;
             e.Type        = vm.Type;
-            e.Height      = vm.HeightFt.HasValue ? vm.HeightFt.Value / 3.28084 : null;
+            e.Height      = vm.HeightFt.HasValue
+                                ? vm.HeightFt.Value / 3.28084
+                                : null;
             e.GeometryGeoJson = vm.GeometryGeoJson;
 
             // Kun registerfører kan endre status
@@ -158,6 +172,5 @@ namespace OBLIG1.Controllers
         }
     }
 }
-
 
 
