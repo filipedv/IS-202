@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure; // MariaDbServerVersion
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using OBLIG1.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Hent connection string (appsettings eller miljøvariabel i Docker)
+// ----- Connection string -----
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
@@ -13,7 +13,7 @@ if (string.IsNullOrWhiteSpace(connStr))
     throw new InvalidOperationException(
         "Connection string mangler. Sett ConnectionStrings__DefaultConnection i compose eller appsettings.json.");
 
-// DbContext (MariaDB) + retry
+// ----- DbContext (MariaDB + retry) -----
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var serverVersion = new MariaDbServerVersion(new Version(11, 4, 0));
@@ -26,42 +26,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     });
 });
 
-// Identity med roller
+// ----- Enkel autentisering med cookies + roller via claims -----
 builder.Services
-    .AddDefaultIdentity<IdentityUser>(options =>
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false;
-    })
-    .AddRoles<IdentityRole>() // VIKTIG for Roller
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+        options.LoginPath = "/Auth/Index";          // hvor man sendes ved behov for login
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+        // evt. flere cookie-innstillinger her
+    });
 
+builder.Services.AddAuthorization();
+
+// MVC
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // hvis du evt. bruker Identity UI senere
 
 var app = builder.Build();
 
-// --- Kjør migrasjoner og seed roller ved oppstart ---
+// ----- Kjør migrasjoner ved oppstart -----
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-
-    // 1) Migrer DB
-    var db = services.GetRequiredService<ApplicationDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
-
-    // 2) Seed roller
-    var roleMgr = services.GetRequiredService<RoleManager<IdentityRole>>();
-    foreach (var roleName in new[] { "Pilot", "Registerforer" }) // "Registerforer" = ASCII-variant av "Registerfører"
-    {
-        if (!await roleMgr.RoleExistsAsync(roleName))
-            await roleMgr.CreateAsync(new IdentityRole(roleName));
-    }
-
-    // (Valgfritt) Seed test-brukere:
-    // var userMgr = services.GetRequiredService<UserManager<IdentityUser>>();
-    // var u = await userMgr.FindByEmailAsync("pilot@example.com")
-    //         ?? new IdentityUser { UserName = "pilot@example.com", Email = "pilot@example.com" };
-    // if (u.Id == null) { await userMgr.CreateAsync(u, "Passw0rd!"); await userMgr.AddToRoleAsync(u, "Pilot"); }
 }
 
 if (!app.Environment.IsDevelopment())
@@ -71,22 +57,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-// statiske filer (fra .NET 9-templates)
 app.MapStaticAssets();
 
 app.UseRouting();
-
-// Authn/Authz må ligge mellom UseRouting og Map*
-app.UseAuthentication();
+app.UseAuthentication();   // MÅ være før UseAuthorization
 app.UseAuthorization();
 
-// MVC route
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Auth}/{action=Index}/{id?}")
     .WithStaticAssets();
-
-// (hvis du bruker Identity UI/Razor Pages)
-app.MapRazorPages();
 
 app.Run();
