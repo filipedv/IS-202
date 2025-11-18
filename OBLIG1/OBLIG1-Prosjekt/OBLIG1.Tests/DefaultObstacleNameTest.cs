@@ -5,10 +5,17 @@ namespace OBLIG1.Tests;
 
 public class DefaultObstacleNameTest
 {
+
     [Fact]
-    public void Obstacle_DefaultName_WhenNameMissing()
+    public void Obstacle_Name_ShouldAllowEmptyString()
     {
-        var o = new Obstacle { Name = "" };
-        Assert.True(string.IsNullOrWhiteSpace(o.Name) || o.Name == "");
+        // Arrange
+        var obstacle = new Obstacle { Name = "" };
+
+        // Act
+        var nameIsEmpty = string.IsNullOrWhiteSpace(obstacle.Name);
+
+        // Assert
+        Assert.True(nameIsEmpty);
     }
 }
