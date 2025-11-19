@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OBLIG1.Data;
 
@@ -11,9 +12,11 @@ using OBLIG1.Data;
 namespace OBLIG1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111035401_AddUsersWithRoles")]
+    partial class AddUsersWithRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,58 +24,6 @@ namespace OBLIG1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityUser");
-                });
 
             modelBuilder.Entity("OBLIG1.Models.Obstacle", b =>
                 {
@@ -82,9 +33,6 @@ namespace OBLIG1.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
@@ -92,8 +40,11 @@ namespace OBLIG1.Migrations
                     b.Property<string>("GeometryGeoJson")
                         .HasColumnType("longtext");
 
-                    b.Property<double?>("Height")
+                    b.Property<double>("Height")
                         .HasColumnType("double");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("bit(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -103,16 +54,7 @@ namespace OBLIG1.Migrations
                     b.Property<DateTime>("RegisteredAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Obstacles");
                 });
@@ -156,16 +98,16 @@ namespace OBLIG1.Migrations
                             IsBlocked = false,
                             Password = "admin123",
                             Role = "Admin",
-                            Username = "admin1"
+                            Username = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            Email = "register@example.com",
+                            Email = "registerforer@example.com",
                             IsBlocked = false,
                             Password = "register123",
                             Role = "Registerer",
-                            Username = "register1"
+                            Username = "registerer"
                         },
                         new
                         {
@@ -176,15 +118,6 @@ namespace OBLIG1.Migrations
                             Role = "Pilot",
                             Username = "pilot"
                         });
-                });
-
-            modelBuilder.Entity("OBLIG1.Models.Obstacle", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId");
-
-                    b.Navigation("CreatedByUser");
                 });
 #pragma warning restore 612, 618
         }
