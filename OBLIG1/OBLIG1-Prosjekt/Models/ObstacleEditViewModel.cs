@@ -5,18 +5,23 @@ namespace OBLIG1.Models
 {
     public class ObstacleEditViewModel
     {
+        //ID til hinderet som redigeres
         public int Id { get; set; }
-
+        
+        //Navn på hinderet
+        //Påkrevd å skrive
         [Required, Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
-
+        
+        //Beskrivelse som brukeren fyller ut
         [Display(Name = "Description")]
         public string? Description { get; set; }
-
+        
+        //Høyde i fot
         [Display(Name = "Height (feet)")]
         [Range(0, 60000)]
         public int? HeightFt { get; set; }   // vises i skjemaet (ft)
-
+        
         [Display(Name = "Obstacle type")]
         public string? Type { get; set; }    // valgt type (Tower/Crane/...)
 
