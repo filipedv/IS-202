@@ -4,8 +4,10 @@ using OBLIG1.Models;
 
 namespace OBLIG1.Data
 {
+    // Statisk klasse som brukes til å forhåndsfylle databasen med roller og brukere
     public static class SeedData
     {
+        // Brukes ved oppstart av applikasjonen for å sørge for at roller og standardbrukere finnes
         public static async Task InitializeAsync(IServiceProvider services)
         {
             using var scope = services.CreateScope();
@@ -14,7 +16,7 @@ namespace OBLIG1.Data
             var roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            // 1) Roller
+            // 1) Roller som skal finnes i systemet
             string[] roles = { "Pilot", "Registerforer", "Admin" };
 
             foreach (var roleName in roles)
@@ -51,11 +53,9 @@ namespace OBLIG1.Data
                 password: "Admin1!",
                 role: "Admin");
         }
-
-        /// <summary>
-        /// Sørger for at brukeren finnes, har gitt rolle
-        /// OG at passordet er satt til verdien vi oppgir (overskriver evt. gammel).
-        /// </summary>
+        
+        // Sørger for at brukeren finnes, har gitt rolle
+        // og at passordet er satt til verdien vi oppgir (overskriver evt. gammel).
         private static async Task EnsureUserWithRoleAndPasswordAsync(
             UserManager<ApplicationUser> userManager,
             string email,
@@ -82,7 +82,7 @@ namespace OBLIG1.Data
             }
             else
             {
-                // Reset passord til det vi ønsker (i dev/prosjekt er dette helt ok)
+                // Reset passord
                 var token = await userManager.GeneratePasswordResetTokenAsync(user);
                 var passResult = await userManager.ResetPasswordAsync(user, token, password);
                 if (!passResult.Succeeded)
