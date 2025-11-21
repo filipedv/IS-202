@@ -11,8 +11,10 @@ var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
 if (string.IsNullOrWhiteSpace(connStr))
+{
     throw new InvalidOperationException(
         "Connection string mangler. Sett ConnectionStrings__DefaultConnection i compose eller appsettings.json.");
+}
 
 // ----- DbContext (MariaDB + retry) -----
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -62,7 +64,8 @@ using (var scope = app.Services.CreateScope())
     var db = services.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();          // kjør migrasjoner
 
-    await SeedData.InitializeAsync(services);  // seed roller + brukere
+    // Seed roller + brukere (pilot1, pilot2, registerforer, admin)
+    await SeedData.InitializeAsync(services);
 }
 
 // ----- Middleware-pipeline -----
@@ -71,6 +74,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
     app.UseHttpsRedirection();
+}
+else
+{
+    // valgfritt i dev:
+    // app.UseDeveloperExceptionPage();
 }
 
 app.MapStaticAssets();

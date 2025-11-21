@@ -125,7 +125,7 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Admin");
         }
 
         // Logout

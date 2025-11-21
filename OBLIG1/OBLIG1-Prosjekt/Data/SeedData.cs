@@ -25,76 +25,80 @@ namespace OBLIG1.Data
                 }
             }
 
-            // 2) Brukere
+            // 2) Brukere (disse vil alltid få "kjent" passord når appen starter)
 
-            // 2 piloter
-            await EnsureUserWithRoleAsync(
+            await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "pilot1@example.com",
                 password: "Pilot1!",
                 role: "Pilot");
 
-            await EnsureUserWithRoleAsync(
+            await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "pilot2@example.com",
                 password: "Pilot2!",
                 role: "Pilot");
 
-            // 1 registerfører
-            await EnsureUserWithRoleAsync(
+            await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "registerforer@example.com",
                 password: "Register1!",
                 role: "Registerforer");
 
-            // 1 admin
-            await EnsureUserWithRoleAsync(
+            await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "admin@example.com",
                 password: "Admin1!",
                 role: "Admin");
         }
 
-        private static async Task<ApplicationUser> EnsureUserAsync(
-            UserManager<ApplicationUser> userManager,
-            string email,
-            string password)
-        {
-            var user = await userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                user = new ApplicationUser
-                {
-                    UserName = email,
-                    Email = email,
-                    EmailConfirmed = true
-                };
-
-                var result = await userManager.CreateAsync(user, password);
-                if (!result.Succeeded)
-                {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new Exception($"Could not create user {email}: {errors}");
-                }
-            }
-
-            return user;
-        }
-
-        private static async Task EnsureUserWithRoleAsync(
+        /// <summary>
+        /// Sørger for at brukeren finnes, har gitt rolle
+        /// OG at passordet er satt til verdien vi oppgir (overskriver evt. gammel).
+        /// </summary>
+        private static async Task EnsureUserWithRoleAndPasswordAsync(
             UserManager<ApplicationUser> userManager,
             string email,
             string password,
             string role)
         {
-            var user = await EnsureUserAsync(userManager, email, password);
+            // Finn eller opprett bruker
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName       = email,
+                    Email          = email,
+                    EmailConfirmed = true
+                };
 
+                var createResult = await userManager.CreateAsync(user, password);
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    throw new Exception($"Could not create user {email}: {errors}");
+                }
+            }
+            else
+            {
+                // Reset passord til det vi ønsker (i dev/prosjekt er dette helt ok)
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var passResult = await userManager.ResetPasswordAsync(user, token, password);
+                if (!passResult.Succeeded)
+                {
+                    var errors = string.Join(", ", passResult.Errors.Select(e => e.Description));
+                    throw new Exception($"Could not reset password for {email}: {errors}");
+                }
+            }
+
+            // Sørg for at brukeren har riktig rolle
             if (!await userManager.IsInRoleAsync(user, role))
             {
-                var result = await userManager.AddToRoleAsync(user, role);
-                if (!result.Succeeded)
+                var roleResult = await userManager.AddToRoleAsync(user, role);
+                if (!roleResult.Succeeded)
                 {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
                     throw new Exception($"Could not add user {email} to role {role}: {errors}");
                 }
             }
