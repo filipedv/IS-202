@@ -1,6 +1,7 @@
 @model IEnumerable<OBLIG1.Controllers.AdminController.AdminUserListViewModel>
 
 @{
+    // Tittel som viser i layouten og nettleserfanen
     ViewData["Title"] = "User administration";
 }
 
@@ -39,10 +40,13 @@
 
 <div class="container my-4">
     <div class="rounded shadow-sm p-3">
+        @* Header med tittel + filter + "Add user"-knapp *@
+        
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="mb-0">Users</h2>
 
             <div class="admin-header-actions">
+                
                 <!-- FILTER til venstre for Add user -->
                 <select id="roleFilter"
                         class="form-select form-select-sm admin-role-filter">
@@ -58,27 +62,35 @@
                 </a>
             </div>
         </div>
-
+                @* Tabell som viser alle brukere *@
         <table class="table table-striped table-sm align-middle mb-0" id="usersTable">
             <thead class="table-light">
-                <tr>
-                    <th scope="col">Email</th>
-                    <th scope="col">Roles</th>
-                    <th scope="col" class="text-end" style="width:160px;"></th>
-                </tr>
+            <tr>
+                <th scope="col">Email</th>
+                <th scope="col">Roles</th>
+                <th scope="col" class="text-end" style="width:160px;"></th>
+            </tr>
             </thead>
             <tbody>
+            @* Genererer én rad per bruker *@
             @foreach (var u in Model)
             {
                 <tr>
                     <td>@u.Email</td>
+                    @* Viser rollene som kommaseparert liste *@
                     <td class="user-roles">@string.Join(", ", u.Roles)</td>
+                    
+                    @* Edit + Delete-knapper *@
                     <td class="text-end">
+                        
+                        @* Edit-knapp *@
                         <a asp-action="Edit"
                            asp-route-id="@u.Id"
                            class="btn btn-sm btn-secondary me-1">
                             Edit
                         </a>
+                        
+                        @* Delete-knapp i form (POST) + confirmation-popup *@
                         <form asp-action="Delete"
                               asp-route-id="@u.Id"
                               method="post"
@@ -117,8 +129,10 @@
         (function () {
             const filter = document.getElementById('roleFilter');
             const table = document.getElementById('usersTable');
+            // Sjekk om elementene finnes
             if (!filter || !table) return;
-
+            
+            //Filtrering når brukere velger rolle
             filter.addEventListener('change', function () {
                 const value = this.value;
                 const rows = table.querySelectorAll('tbody tr');
