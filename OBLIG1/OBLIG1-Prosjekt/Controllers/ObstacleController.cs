@@ -13,18 +13,24 @@ namespace OBLIG1.Controllers
     [Authorize(Roles = "Pilot,Registerforer")]
     public class ObstacleController : Controller
     {
+        // Databasekontekst – brukes til å lese/lagre Obstacle-objekter
         private readonly ApplicationDbContext _db;
+        
+        // Konstruktør hvor ApplicationDbContext injiseres via dependency injection
         public ObstacleController(ApplicationDbContext db) => _db = db;
 
         // ---------- DataForm (Create via kart) ----------
 
+        // Viser tomt skjema for å registrere et nytt hinder via kart (ObstacleData ViewModel)
         [HttpGet]
         public IActionResult DataForm() => View(new ObstacleData());
 
+        // Tar imot innsending fra DataForm og oppretter et nytt hinder
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] // Beskyttelse mot CSRF-angrep
         public async Task<IActionResult> DataForm(ObstacleData vm)
         {
+            // Krever at brukeren har tegnet et objekt i kartet (GeoJSON-geometri)
             if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
             {
                 ModelState.AddModelError(nameof(vm.GeometryGeoJson),
@@ -32,10 +38,13 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
+            // Hent innlogget brukers Id (fra claims)
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // Mapper ViewModel til domeneobjektet Obstacle
             var entity = new Obstacle
             {
+                // Bruk standardnavn hvis brukeren ikke har oppgitt noe
                 Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
                 Height          = (vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight,
                 Description     = vm.ObstacleDescription ?? string.Empty,
@@ -46,19 +55,22 @@ namespace OBLIG1.Controllers
                 Status          = ObstacleStatus.Pending
             };
 
+            // Legg til nytt hinder i databasen
             _db.Obstacles.Add(entity);
             await _db.SaveChangesAsync();
 
-            // hit vil du nå
+            // Etter registrering sendes bruker tilbake til forsiden
             return RedirectToAction("Index", "Home");
         }
 
 
         // ---------- Overview (rollebasert datascope) ----------
 
+        // Viser en oversikt over hindere – innholdet avhenger av brukerens rolle
         [HttpGet]
         public async Task<IActionResult> Overview()
         {
+            // Startspørring: alle hindere, sortert på nyeste først
             IQueryable<Obstacle> q = _db.Obstacles
                 .OrderByDescending(o => o.RegisteredAt);
 
@@ -73,6 +85,7 @@ namespace OBLIG1.Controllers
                 q = q.Where(o => o.CreatedByUserId == userId);
             }
 
+            // Gjør om spørring til liste og sender det til view
             var list = await q.ToListAsync();
             return View(list);
         }
@@ -99,9 +112,11 @@ namespace OBLIG1.Controllers
                 new SelectListItem("Rejected", ObstacleStatus.Rejected.ToString(), current == ObstacleStatus.Rejected),
             };
 
+        // Viser edit-skjema for et hinder, inkludert kart og metadata
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            // Finn hinderet i databasen    
             var e = await _db.Obstacles.FindAsync(id);
             if (e == null) return NotFound();
 
@@ -119,6 +134,7 @@ namespace OBLIG1.Controllers
                 .Select(u => u.Email)
                 .FirstOrDefaultAsync();
 
+            // Bygg ViewModel for redigering
             var vm = new ObstacleEditViewModel
             {
                 Id          = e.Id,
@@ -143,10 +159,12 @@ namespace OBLIG1.Controllers
         }
 
 
+        // Behandler innsending av edit-skjema (lagring av endringer)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ObstacleEditViewModel vm)
         {
+            // Ved valideringsfeil må vi fylle opp dropdown-lister på nytt og vise viewet igjen
             if (!ModelState.IsValid)
             {
                 vm.TypeOptions     = GetTypeOptions(vm.Type);
@@ -155,6 +173,7 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
+            // Finn eksisterende hinder i databasen
             var e = await _db.Obstacles.FindAsync(vm.Id);
             if (e == null) return NotFound();
 
@@ -178,7 +197,9 @@ namespace OBLIG1.Controllers
             if (User.IsInRole("Registerforer"))
                 e.Status = vm.Status;
 
+            // Lagre endringer til databasen
             await _db.SaveChangesAsync();
+            // Etter lagring sendes bruker tilbake til oversiktssiden
             return RedirectToAction(nameof(Overview));
         }
     }
