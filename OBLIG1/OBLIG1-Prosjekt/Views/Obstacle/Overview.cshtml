@@ -45,8 +45,8 @@ else
             <tr>
                 <th>Obstacle</th>
                 <th>Height (m)</th>
-                <th>Draft?</th>
                 <th>Registered</th>
+                <th>Status</th>
                 <th class="text-end">Actions</th>
             </tr>
             </thead>
@@ -57,6 +57,7 @@ else
                     <td>@o.Name</td>
                     <td>@(o.Height?.ToString("0.##") ?? "-")</td>
                     <td>@o.RegisteredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@o.Status</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-primary"
                            asp-controller="Obstacle"

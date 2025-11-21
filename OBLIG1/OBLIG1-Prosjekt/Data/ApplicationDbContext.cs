@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using OBLIG1.Models; // ← gir tilgang til Obstacle-entity
+using OBLIG1.Models;
 
-namespace OBLIG1.Data;
-
-public class ApplicationDbContext : DbContext
+namespace OBLIG1.Data
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
-    
-    public DbSet<Obstacle> Obstacles => Set<Obstacle>(); // Tabellen "Obstacles"
-}
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
+        public DbSet<Obstacle> Obstacles { get; set; } = null!;
+    }
+}

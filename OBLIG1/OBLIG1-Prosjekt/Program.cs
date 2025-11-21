@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using OBLIG1.Data;
+using OBLIG1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,15 +27,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     });
 });
 
-// ----- Enkel autentisering med cookies + roller via claims -----
+// ----- Identity (ApplicationUser + roller) -----
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddIdentityCore<ApplicationUser>(options =>
     {
-        options.LoginPath = "/Auth/Index";          // hvor man sendes ved behov for login
-        options.AccessDeniedPath = "/Auth/AccessDenied";
-        // evt. flere cookie-innstillinger her
-    });
+        options.SignIn.RequireConfirmedAccount = false;
+        // Her kan du legge til strengere passordregler osv. om ønskelig
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager();
+
+// Registrer cookie-skjemaene Identity bruker (Identity.Application osv.)
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme       = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddIdentityCookies();
 
 builder.Services.AddAuthorization();
 
@@ -43,13 +54,18 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ----- Kjør migrasjoner ved oppstart -----
+// ----- Migrasjoner + seeding ved oppstart -----
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    var services = scope.ServiceProvider;
+
+    var db = services.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();          // kjør migrasjoner
+
+    await SeedData.InitializeAsync(services);  // seed roller + brukere
 }
 
+// ----- Middleware-pipeline -----
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -60,7 +76,8 @@ if (!app.Environment.IsDevelopment())
 app.MapStaticAssets();
 
 app.UseRouting();
-app.UseAuthentication();   // MÅ være før UseAuthorization
+
+app.UseAuthentication();   // må komme før UseAuthorization
 app.UseAuthorization();
 
 app.MapControllerRoute(

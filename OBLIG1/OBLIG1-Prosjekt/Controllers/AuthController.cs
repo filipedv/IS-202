@@ -1,57 +1,68 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using OBLIG1.Models;
 
 namespace OBLIG1.Controllers
 {
-    // Enkel viewmodel for innlogging
     public class LoginVm
     {
-        // Når dere får ordentlig validering/brukere kan dere skru på disse:
-        //[Required, EmailAddress]
-        public string? Email { get; set; }
+        [Required, EmailAddress]
+        public string Email { get; set; } = "";
 
-        //[Required, DataType(DataType.Password)]
-        public string? Password { get; set; }
+        [Required, DataType(DataType.Password)]
+        public string Password { get; set; } = "";
     }
 
     public class AuthController : Controller
     {
-        // Førstesiden – viser pilot-innlogging + knapper til de andre
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public AuthController(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
+        {
+            _signInManager = signInManager;
+            _userManager = userManager;
+        }
+
+        // Førstesiden – pilot-login som default
         [HttpGet]
         public IActionResult Index() => View(new LoginVm());
 
-        // ---------- Pilot-login ----------
+        // -------- Pilot-login --------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PilotLogin(LoginVm vm)
         {
-            if (!ModelState.IsValid)
-                return View("Index", vm);
+            if (!ModelState.IsValid) return View("Index", vm);
 
-            // Her kunne du normalt sjekket brukernavn/passord.
-            // Nå faker vi en innlogging med rolle "Pilot":
-
-            var claims = new List<Claim>
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
             {
-                new Claim(ClaimTypes.NameIdentifier, vm.Email ?? "pilot@example.com"),
-                new Claim(ClaimTypes.Name,          vm.Email ?? "Pilot"),
-                new Claim(ClaimTypes.Role,          "Pilot")   // <-- VIKTIG: matcher [Authorize(Roles="Pilot,...")]
-            };
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View("Index", vm);
+            }
 
-            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            // Sjekk at brukeren faktisk har rollen Pilot
+            if (!await _userManager.IsInRoleAsync(user, "Pilot"))
+            {
+                ModelState.AddModelError("", "You are not a Pilot user.");
+                return View("Index", vm);
+            }
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal);
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View("Index", vm);
+            }
 
             return RedirectToAction("Index", "Home");
         }
 
-        // ---------- Registerfører-login ----------
+        // -------- Registerfører-login --------
         [HttpGet]
         public IActionResult Registerforer() => View(new LoginVm());
 
@@ -59,27 +70,32 @@ namespace OBLIG1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registerforer(LoginVm vm)
         {
-            if (!ModelState.IsValid)
-                return View(vm);
+            if (!ModelState.IsValid) return View(vm);
 
-            var claims = new List<Claim>
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
             {
-                new Claim(ClaimTypes.NameIdentifier, vm.Email ?? "registrar@example.com"),
-                new Claim(ClaimTypes.Name,          vm.Email ?? "Registrar"),
-                new Claim(ClaimTypes.Role,          "Registerforer") // matcher [Authorize(Roles="Pilot,Registerforer")]
-            };
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
 
-            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            if (!await _userManager.IsInRoleAsync(user, "Registerforer"))
+            {
+                ModelState.AddModelError("", "You are not a Registrar user.");
+                return View(vm);
+            }
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal);
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
 
             return RedirectToAction("Overview", "Obstacle");
         }
 
-        // ---------- Admin-login (valgfritt role-navn) ----------
+        // -------- Admin-login --------
         [HttpGet]
         public IActionResult Admin() => View(new LoginVm());
 
@@ -87,33 +103,42 @@ namespace OBLIG1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Admin(LoginVm vm)
         {
-            if (!ModelState.IsValid)
-                return View(vm);
+            if (!ModelState.IsValid) return View(vm);
 
-            var claims = new List<Claim>
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if (user == null)
             {
-                new Claim(ClaimTypes.NameIdentifier, vm.Email ?? "admin@example.com"),
-                new Claim(ClaimTypes.Name,          vm.Email ?? "Admin"),
-                new Claim(ClaimTypes.Role,          "Admin")
-            };
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
 
-            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                ModelState.AddModelError("", "You are not an Admin user.");
+                return View(vm);
+            }
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal);
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
 
             return RedirectToAction("Index", "Home");
         }
 
-        // (valgfritt) Log out
+        // Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index");
         }
+
+        // Valgfritt AccessDenied-view
+        [HttpGet]
+        public IActionResult AccessDenied() => View();
     }
 }

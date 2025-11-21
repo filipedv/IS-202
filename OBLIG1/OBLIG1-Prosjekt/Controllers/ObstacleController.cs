@@ -111,14 +111,20 @@ namespace OBLIG1.Controllers
                     return Forbid();
             }
 
+            // Hent e-post (eller brukernavn) til den som registrerte hinderet
+            var createdByEmail = await _db.Users
+                .Where(u => u.Id == e.CreatedByUserId)
+                .Select(u => u.Email)
+                .FirstOrDefaultAsync();
+
             var vm = new ObstacleEditViewModel
             {
                 Id          = e.Id,
                 Name        = e.Name,
                 Description = e.Description,
                 HeightFt    = e.Height.HasValue
-                                ? (int)Math.Round(e.Height.Value * 3.28084)
-                                : null,
+                    ? (int)Math.Round(e.Height.Value * 3.28084)
+                    : null,
                 Type            = e.Type,
                 GeometryGeoJson = e.GeometryGeoJson,
                 TypeOptions     = GetTypeOptions(e.Type),
@@ -126,11 +132,14 @@ namespace OBLIG1.Controllers
                 // Status-info til view
                 Status        = e.Status,
                 StatusOptions = GetStatusOptions(e.Status),
-                CanEditStatus = User.IsInRole("Registerforer")
+                CanEditStatus = User.IsInRole("Registerforer"),
+
+                CreatedByUser = createdByEmail ?? "(unknown)"
             };
 
             return View(vm);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
