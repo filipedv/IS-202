@@ -1,40 +1,56 @@
 @model OBLIG1.Controllers.AdminController.AdminUserEditViewModel
 
 @{
+    //Tittelen som vises i layouten
     ViewData["Title"] = "Add user";
 }
 
 <div class="container my-4">
     <div class="rounded shadow-sm p-4">
         <h2 class="mb-3">@ViewData["Title"]</h2>
-
+        
+        <!-- Skjema for å legge til en ny bruker -->
         <form asp-action="Create" method="post" novalidate>
-            @Html.AntiForgeryToken()
+            @Html.AntiForgeryToken() <!-- Beskytter mot CSRF-angrep -->
+            
+            <!-- Viser valideringsfeil for hele modellen -->
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
-
+            
+            <!-- E-postfelt -->
             <div class="mb-3">
+                <!-- Label generert fra viewmodellens DisplayName -->
                 <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
+                <!-- Inputfelt bundet til Email -->
+                <input asp-for="Email" class="form-control"/>
+                <!-- Viser valideringsfeil knyttet til Email -->
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
+            <!-- Passordfelt -->
             <div class="mb-3">
                 <label asp-for="Password" class="form-label"></label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
+            <!-- Rollevalg (dropdown) -->
             <div class="mb-3">
                 <label asp-for="Role" class="form-label"></label>
+                <!-- Drop-down som fylles med roller fra viewmodellen -->
                 <select asp-for="Role"
                         class="form-select"
                         asp-items="@(new SelectList(Model.AvailableRoles))">
                 </select>
                 <span asp-validation-for="Role" class="text-danger"></span>
             </div>
-
+            
+            <!-- Knapperad -->
             <div class="d-flex gap-2">
+                
+                <!-- Sender skjemaet -->
                 <button type="submit" class="btn btn-primary">Save</button>
+                
+                <!-- Avbryt og gå tilbake til Index -->
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
@@ -42,5 +58,6 @@
 </div>
 
 @section Scripts {
+    <!-- Inkluderer jQuery-validering for klientsidevalidering -->
     <partial name="_ValidationScriptsPartial" />
 }
