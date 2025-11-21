@@ -11,7 +11,6 @@
       gap:18px;
       grid-template-columns: 1fr;   /* mobil: én kolonne */
     }
-
     .edit-card{
       background:#fff;
       border-radius:14px;
@@ -19,22 +18,22 @@
       padding:16px;
     }
 
-    /* Litt høyere kart */
+    /* Større kart */
     #edit-map{
-      height: 580px;                /* var 520px */
+      height: 580px;       
       border-radius:12px;
       border:1px solid #e5e7eb;
     }
 
-    /* Knappelinje */
+    /* Verktøylinje */
     .map-toolbar{
       display:flex;
       flex-wrap:nowrap;
-      gap:6px;                      /* litt mer luft igjen */
+      gap:6px;                    
       margin-bottom:8px;
     }
 
-    /* Litt bredere (men fortsatt kompakte) ikon-knapper */
+    /* Ikonknapper - større tekst og mer luft */
     .map-toolbar .btn.icon-btn{
       display:inline-flex !important;
       align-items:center !important;
@@ -61,7 +60,7 @@
       display:inline-block;
     }
 
-    /* Desktop: to ca. like brede kolonner */
+    /* Desktop - to kolonner */
     @@media (min-width: 992px){
       .edit-wrap{
         grid-template-columns: 1fr 1fr;
@@ -71,15 +70,15 @@
 }
 
 
-
 <div class="container my-4">
 
   <div class="edit-wrap">
-    <!-- VENSTRE: kart + verktøy -->
+    <!-- Venstre side: kart og verktøy -->
     <div class="edit-card">
       <div class="map-toolbar">
 
-        <!-- POINT -->
+        
+        <!-- Tegn punkt -->
         <button type="button"
                 id="btn-marker"
                 class="btn icon-btn btn-primary"
@@ -91,7 +90,8 @@
           <span class="label">Point</span>
         </button>
 
-        <!-- LINE -->
+        
+        <!-- Tegn linje -->
         <button type="button"
                 id="btn-line"
                 class="btn icon-btn btn-primary"
@@ -108,7 +108,8 @@
           <span class="label">Line</span>
         </button>
 
-        <!-- EDIT -->
+        
+        <!-- Rediger geometri -->
         <button type="button"
                 id="btn-edit"
                 class="btn icon-btn btn-secondary"
@@ -120,7 +121,8 @@
           <span class="label">Edit</span>
         </button>
 
-        <!-- DELETE -->
+        
+        <!-- Slette alt -->
         <button type="button"
                 id="btn-clear"
                 class="btn icon-btn btn-secondary"
@@ -133,28 +135,34 @@
         </button>
       </div>
 
+      <!-- Kart -->
       <div id="edit-map"></div>
     </div>
 
-    <!-- HØYRE: skjema -->
+    
+    <!-- Høyre side: hinderdata -->
     <div class="edit-card">
       <form asp-action="Edit" method="post" id="editForm" novalidate>
         @Html.AntiForgeryToken()
+        <!-- Skult ID og Geo -->
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="GeometryGeoJson" id="GeometryGeoJson" />
 
+        <!-- Navn -->
         <div class="mb-3">
           <label asp-for="Name" class="form-label"></label>
           <input asp-for="Name" class="form-control" />
           <span asp-validation-for="Name" class="text-danger"></span>
         </div>
-
+        
+        <!-- Type -->
         <div class="mb-3">
           <label asp-for="Type" class="form-label"></label>
           <select asp-for="Type" asp-items="Model.TypeOptions" class="form-select"></select>
           <span asp-validation-for="Type" class="text-danger"></span>
         </div>
-
+        
+        <!-- Høyde i fot -->
         <div class="mb-3">
           <label asp-for="HeightFt" class="form-label"></label>
           <div class="input-group">
@@ -167,19 +175,21 @@
           <span asp-validation-for="HeightFt" class="text-danger"></span>
         </div>
 
+        <!-- Beskrivelse -->
         <div class="mb-3">
           <label asp-for="Description" class="form-label"></label>
           <textarea asp-for="Description" class="form-control" rows="4"></textarea>
           <span asp-validation-for="Description" class="text-danger"></span>
         </div>
 
-        <!-- Hvem som registrerte hinderet -->
+        <!-- Hvem registrerte hinderet -->
         <div class="mb-3">
           <label asp-for="CreatedByUser" class="form-label"></label>
           <input class="form-control" value="@Model.CreatedByUser" disabled />
         </div>
 
-        <!-- STATUS INNE I FORMEN -->
+        
+        <!-- Status (kan ikke nedres av pilot) -->
         @if (Model.CanEditStatus)
         {
           <div class="mb-3">
@@ -200,6 +210,7 @@
           </div>
         }
 
+        <!-- Knapper -->
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-primary">Save</button>
           <a asp-action="Overview" class="btn btn-secondary">Cancel</a>
@@ -211,8 +222,9 @@
 
 @section Scripts {
   <partial name="_ValidationScriptsPartial" />
+  
 
-  <!-- Leaflet + Leaflet.Draw -->
+  <!-- Leaflet CSS/JS for kart -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
@@ -225,14 +237,17 @@
       maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // Lag en feature-gruppe for tegnet geometri
     const drawnItems = new L.FeatureGroup().addTo(map);
-
+    
     // Last eksisterende GeoJSON
     const existing = @Html.Raw(string.IsNullOrWhiteSpace(Model.GeometryGeoJson) ? "null" : Model.GeometryGeoJson);
+   
     if (existing) {
       const layer = L.geoJSON(existing, {
         onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)
       }).addTo(map);
+      
       try {
         const b = layer.getBounds();
         if (b.isValid()) map.fitBounds(b.pad(0.2)); else map.setView([59.9139, 10.7461], 13);
@@ -241,16 +256,19 @@
       map.setView([59.9139, 10.7461], 13);
     }
 
-    // Draw-handlers
+    
+    // Tegneverktøy
     const drawMarker = new L.Draw.Marker(map, { icon: new L.Icon.Default() });
     const drawPolyline = new L.Draw.Polyline(map, { shapeOptions: { color: '#2563eb', weight: 4 } });
 
     let editToolbar = null, deleteToolbar = null;
+    // Deaktiver aktive tegne- eller redigeringsmoduser
     function disableModes(){
       if (editToolbar)   { editToolbar.disable();   editToolbar = null; }
       if (deleteToolbar) { deleteToolbar.disable(); deleteToolbar = null; }
     }
 
+    
     // Hendelser
     map.on(L.Draw.Event.CREATED, e => {
       drawnItems.addLayer(e.layer);
@@ -265,26 +283,31 @@
       setTimeout(()=> map.invalidateSize(), 50);
     }
 
-    // Knapp-handlers
+    
+    // Knapp for tegning
     document.getElementById('btn-marker').addEventListener('click', () => {
       disableModes(); drawMarker.enable();
     });
     document.getElementById('btn-line').addEventListener('click', () => {
       disableModes(); drawPolyline.enable();
     });
+    // Rediger geometri
     document.getElementById('btn-edit').addEventListener('click', () => {
       disableModes();
       editToolbar = new L.EditToolbar.Edit(map, { featureGroup: drawnItems });
       editToolbar.enable();
     });
+    // Slett all geometri
     document.getElementById('btn-clear').addEventListener('click', () => {
       disableModes(); drawnItems.clearLayers(); syncGeo();
     });
 
-    // Før submit: sørg for at GeoJSON er oppdatert
+
+    // Oppdater GeoJSON før sending av skjema
     document.getElementById('editForm').addEventListener('submit', syncGeo);
 
-    // Live konvertering ft -> m i UI
+
+    // Konverter fot → meter live
     function ftToM(ft){ return (ft / 3.28084); }
     const ftInput = document.getElementById('HeightFt');
     const mOut = document.getElementById('heightMeters');
@@ -295,7 +318,8 @@
     }
     if (ftInput){ updateMeters(); ftInput.addEventListener('input', updateMeters); }
 
-    // Reflow ved resize
+
+    // Oppdater kartet ved vindu-resize
     window.addEventListener('resize', () => map.invalidateSize());
   </script>
 }
