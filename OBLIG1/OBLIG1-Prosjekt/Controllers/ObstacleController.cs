@@ -39,18 +39,20 @@ namespace OBLIG1.Controllers
                 Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
                 Height          = (vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight,
                 Description     = vm.ObstacleDescription ?? string.Empty,
-                Type            = null, // settes i Edit-skjemaet
+                Type            = null,
                 GeometryGeoJson = vm.GeometryGeoJson,
                 RegisteredAt    = DateTime.UtcNow,
                 CreatedByUserId = userId,
-                Status          = ObstacleStatus.Pending // default status
+                Status          = ObstacleStatus.Pending
             };
 
             _db.Obstacles.Add(entity);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Overview));
+            // hit vil du nå
+            return RedirectToAction("Index", "Home");
         }
+
 
         // ---------- Overview (rollebasert datascope) ----------
 
