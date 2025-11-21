@@ -1,4 +1,4 @@
-@model OBLIG1.Models.User
+@model OBLIG1.Models.ApplicationUser
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Edit User";
@@ -18,8 +18,8 @@
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
-        <label asp-for="Username"></label>
-        <input asp-for="Username" class="form-control" />
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" class="form-control" />
     </div>
 
     <div class="mb-3">

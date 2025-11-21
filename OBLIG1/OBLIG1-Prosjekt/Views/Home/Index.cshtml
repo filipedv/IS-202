@@ -10,15 +10,34 @@
 </div>
 
 @section PageFooter {
-    <div class="d-flex justify-content-center gap-3">
-        <a asp-controller="Obstacle" asp-action="DataForm" class="btn btn-primary">Register Obstacle</a>
-        <a asp-controller="Obstacle" asp-action="Overview"   class="btn btn-primary">Overview</a>
+    <div class="position-relative w-100">
+        @* VENSTRE: Logout-knapp *@
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <div class="position-absolute start-0">
+                <form asp-controller="Auth"
+                      asp-action="Logout"
+                      method="post"
+                      class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-secondary">
+                        Log out
+                    </button>
+                </form>
+            </div>
+        }
+
+        @* MIDTEN: eksisterende knapper, 100% sentrert *@
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-controller="Obstacle" asp-action="DataForm" class="btn btn-primary">Register Obstacle</a>
+            <a asp-controller="Obstacle" asp-action="Overview"   class="btn btn-primary">Overview</a>
+        </div>
     </div>
 }
 
 @section Scripts {
     <script>
-        var map = L.map('map').setView([59.9139, 10.7461], 13);
+        var map = L.map('map').setView([58.1467, 7.9956], 13); // kart lokasjon til Kristiansand
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);

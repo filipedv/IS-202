@@ -10,15 +10,13 @@ public class HomeController : Controller
 {
     //Logger som kan brukes til feilsøking
     private readonly ILogger<HomeController> _logger; 
-
+    
     
     //Rammeverket som gir logging
     public HomeController(ILogger<HomeController> logger) 
     {
         _logger = logger;
     }
-
-    
     
     //Peker på index.cshtml og returnerer den som et view i nettleseren
     public IActionResult Index()
@@ -31,7 +29,7 @@ public class HomeController : Controller
     {
         return View();
     }
-
+    
     //Viser en feilmeldingsside som aldri caches og har en unik ID slik at hver enkelt forespørsel- 
     //kan feilsøkes i logger
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

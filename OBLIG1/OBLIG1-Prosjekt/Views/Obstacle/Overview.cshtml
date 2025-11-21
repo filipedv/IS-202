@@ -3,14 +3,32 @@
 
 @{
     ViewData["Title"] = "Overview";
-    var items = Model.ToList();
-    var count = items.Count;
+    var items = (Model ?? Enumerable.Empty<Obstacle>()).ToList();
+}
+
+@section Styles {
+    <style>
+    /* Svevende back-knapp nederst til venstre */
+    .floating-back{
+      position: fixed;
+      left: max(12px, env(safe-area-inset-left));
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 1050; /* over innhold/tabell */
+    }
+
+    .floating-back{
+        position: fixed;
+        left: max(12px, env(safe-area-inset-left));
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 1050;
+    }
+  </style>
 }
 
 
-@if (count == 0)
+@if (!items.Any())
 {
-    <section class="mx-auto max-w-2xl my-6">
+    <section class="mx-auto my-4" style="max-width: 720px;">
         <div class="alert alert-info" role="alert">
             There are no obstacles yet. Add an obstacle to see it here.
         </div>
@@ -21,78 +39,48 @@
 }
 else
 {
-    @for (int i = 0; i < items.Count; i++)
-    {
-        var o = items[i];
-        <section class="mx-auto max-w-2xl mb-6">
-            <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6 space-y-4">
-                <header>
-                    <h2 class="text-2xl font-semibold">Overview</h2>
-                    <p class="text-gray-600 mt-1">Thank you for registering an obstacle:</p>
-                </header>
-
-                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-600">Obstacle Name</dt>
-                        <dd class="mt-1 text-base text-gray-900 break-words">@o.Name</dd>
-                    </div>
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-600">Height (m)</dt>
-                        <dd class="mt-1 text-base text-gray-900">@o.Height</dd>
-                    </div>
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-600">Description</dt>
-                        <dd class="mt-1 text-base text-gray-900 break-words sm:col-span-3">@o.Description</dd>
-                    </div>
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-600">Draft?</dt>
-                        <dd class="mt-1 text-base text-gray-900">@(o.IsDraft ? "Yes" : "No")</dd>
-                    </div>
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-600">Registered</dt>
-                        <dd class="mt-1 text-base text-gray-900">@o.RegisteredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                    </div>
-                </dl>
-
-                <div class="space-y-3">
-                    <label class="block text-sm font-medium text-gray-800">Geometry (map)</label>
-                    <div id="overview-map-@i"
-                         data-geo='@Html.Raw(o.GeometryGeoJson ?? "null")'
-                         style="height:420px; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb;">
-                    </div>
-                </div>
-            </div>
-        </section>
-    }
-
-    @section Scripts {
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          document.querySelectorAll("[id^='overview-map-']").forEach(function(el) {
-            var map = L.map(el.id).setView([20, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              maxZoom: 19,
-              attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            var geo = el.dataset.geo;
-            if (!geo || geo === "null" || geo.trim() === "") return;
-
-            try {
-              var parsed = JSON.parse(geo);
-              var layer = L.geoJSON(parsed, {
-                pointToLayer: function(feature, latlng){ return L.marker(latlng); }
-              }).addTo(map);
-
-              if (layer.getLayers && layer.getLayers().length && layer.getBounds) {
-                map.fitBounds(layer.getBounds(), { padding: [20, 20] });
-              }
-            } catch (e) {
-              console.warn("Invalid GeoJSON for", el.id, e);
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th>Obstacle</th>
+                <th>Height (m)</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var o in items)
+            {
+                <tr>
+                    <td>@o.Name</td>
+                    <td>@(o.Height?.ToString("0.##") ?? "-")</td>
+                    <td>@o.RegisteredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@o.Status</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="Obstacle"
+                           asp-action="Edit"
+                           asp-route-id="@o.Id">Edit</a>
+                    </td>
+                </tr>
             }
-          });
-        });
-        </script>
-    }
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="floating-back">
+        <a asp-controller="Home" asp-action="Index"
+           class="btn icon-btn btn-secondary" aria-label="Back" title="Back">
+            <!-- arrow-left icon -->
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 7l-5 5 5 5"></path>
+                <path d="M20 12H9"></path>
+            </svg>
+            <span>Back</span>
+        </a>
+    </div>
+    
 }

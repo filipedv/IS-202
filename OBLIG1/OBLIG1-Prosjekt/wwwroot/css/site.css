@@ -1,33 +1,27 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
+/* ===== Base ===== */
+html { font-size: 14px; }
+@media (min-width: 768px) { html { font-size: 16px; } }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
+/* Viktig for fullhøyde-layout */
+html, body { height: 100%; }
+html { position: relative; min-height: 100%; }
 
-body {
-  margin-bottom: 60px;
-}
 
+/* Ikke ekstra bunnmargin – vi bruker egen flytende footer */
+body { margin-bottom: 0 !important; }
+
+
+/* ===== Forms ===== */
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+    color: var(--bs-secondary-color);
+    text-align: end;
 }
-
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    text-align: start;
 }
 
 /* ===== Auth login styles ===== */
@@ -57,96 +51,102 @@ body {
 .btn-secondary { background:#475569; }
 .btn-block { width:100%; display:block; text-align:center; }
 
+
 /* Skjul global footer-margin når chrome er skjult */
 .no-chrome { margin-bottom: 0; }
 
-/* ===== Page footer + kart-høyde (felles for Home og DataForm) ===== */
-:root { --action-footer-space: 120px; }           /* juster ved behov */
 
+/* ===== Page footer + kart-høyde ===== */
+:root { --action-footer-space: 120px; }              /* juster ved behov */
 .with-action-footer { padding-bottom: var(--action-footer-space); }
 
-/* Hjemmeside-kart */
-.home-map {
-    height: calc(100svh - var(--action-footer-space) - 24px);
-    min-height: 380px;
-}
 
-/* DataForm-kart */
-.form-map {
-    height: calc(100svh - var(--action-footer-space) - 24px);
-    min-height: 380px;
-}
+/* Kart (Home + DataForm) – bruk all høyde minus plass for actions-footer */
+.home-map { height: calc(100svh - var(--action-footer-space)); min-height: 380px; }
+.form-map { height: calc(100svh - var(--action-footer-space)); min-height: 380px; }
 
-/* Sticky/flytende footer med handlingsknapper */
+
+/* Fjern ekstra bunnmargin som kunne lage hvit stripe */
+.home-section { margin-bottom: 0 !important; }
+
+
+/* Flytende handlingsfooter */
 .page-actions{
-    position: fixed; left:0; right:0; bottom:12px;
+    position: fixed; left:0; right:0; bottom:0;        /* helt ned */
     background: rgba(255,255,255,.92);
     border: 1px solid #e5e7eb; border-left:none; border-right:none;
     box-shadow: 0 6px 20px rgba(0,0,0,.08);
-    padding: 10px 12px; z-index: 1030;
+    padding: 10px 12px;
+    z-index: 1030;
+    overflow-x: hidden;                                 /* ingen hor-scroll hvis wrap */
 }
 
-/* Tekst-knapper i footer (hvis brukt) */
+/* Innhold i handlingsfooter */
 .page-actions .btn{
     min-width: 220px;
     padding: 14px 22px;
     font-size: 1.125rem;
     border-radius: 12px;
 }
-
-/* Ikon-knapper i footer (for DataForm-verktøy) */
-.icon-btn{
-    min-width: 64px; height: 56px; padding: 0 10px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 12px;
-}
-.icon-btn svg{ display:block; }
-@media (min-width: 1200px){
-    .icon-btn { min-width: 72px; height: 64px; }
-}
-
-/* Skjult hjelpetekst for tilgjengelighet */
-.visually-hidden{
-    position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
-    overflow:hidden; clip: rect(0 0 1px 1px); border:0;
-}
-
-/* Fjern ekstra bunnmargin som kan gi hvit stripe under */
-.home-section { margin-bottom: 0 !important; }
-
-/* Page footer container */
-.page-actions{
-    position: fixed; left:0; right:0; bottom:12px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid #e5e7eb; border-left:none; border-right:none;
-    box-shadow: 0 6px 20px rgba(0,0,0,.08);
-    padding: 10px 12px;
-    z-index: 1030;
-
-    /* Viktig for små skjermer: */
-    overflow-x: hidden;          /* ikke hor scroll om vi wrap’er */
-}
-
-/* Rad med knapper inni footeren */
 .page-actions-bar{
     display: flex;
-    flex-wrap: wrap;             /* <-- wrap til to/tre rader ved behov */
+    flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
     align-items: center;
 }
 
-/* Ikonknapper – gjør dem litt fleksible i bredden */
+/* Ikonknapper (hvis brukt) */
 .icon-btn{
-    min-width: clamp(56px, 10vw, 72px);  /* krymp litt på små skjermer */
+    min-width: clamp(56px, 10vw, 72px);
     height: 56px; padding: 0 10px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 12px;
 }
-@media (min-width: 1200px){
-    .icon-btn{ min-width: 72px; height: 64px; }
+.icon-btn svg{ display:block; }
+@media (min-width: 1200px){ .icon-btn{ min-width: 72px; height: 64px; } }
+
+
+/* Tilleggsnyttig */
+body.page-fullscreen { margin: 0; }
+.visually-hidden{
+    position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0 0 1px 1px); border:0;
 }
 
-/* Siden reserverer plass til footeren nederst */
-.with-action-footer{ padding-bottom: var(--action-footer-space, 120px); }
+/* Større handlingsknapper med ikon + tekst */
+.icon-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 
+    padding: 16px 24px;      /* større “hit area” */
+    min-height: 64px;
+    min-width: 220px;
+
+    border-radius: 14px;
+    font-size: 1.125rem;
+    line-height: 1.2;
+    border: none;
+}
+
+.icon-btn .label{
+    display: inline-block;
+}
+
+/* Sikre at ikonene har fin størrelse og sentreres */
+.icon-btn svg{
+    width: 40px;
+    height: 22px;
+    display: block;
+}
+
+/* På veldig smale skjermer kan vi krympe litt */
+@media (max-width: 420px){
+    .icon-btn{ min-width: 160px; padding: 14px 18px; font-size: 1rem; }
+}
+
+.leaflet-control-zoom {
+    transform: scale(1.35);      /* 1.0 = original */
+    transform-origin: top left;  /* behold posisjonen */
+}

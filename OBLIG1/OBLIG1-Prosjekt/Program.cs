@@ -1,34 +1,71 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure; // for MariaDbServerVersion
-using OBLIG1.Data; 
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using OBLIG1.Data;
+using OBLIG1.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Hent connstr fra appsettings.json (lokalt) eller miljøvariabel (docker-compose)
+// ----- Connection string -----
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
-builder.Services.AddControllersWithViews();
+if (string.IsNullOrWhiteSpace(connStr))
+    throw new InvalidOperationException(
+        "Connection string mangler. Sett ConnectionStrings__DefaultConnection i compose eller appsettings.json.");
 
+// ----- DbContext (MariaDB + retry) -----
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    if (string.IsNullOrWhiteSpace(connStr))
-        throw new InvalidOperationException(
-            "Connection string mangler. Sett ConnectionStrings__DefaultConnection i compose eller appsettings.json.");
-
-    // Bruk fast versjon for EF design-time (slipper å koble til DB)
     var serverVersion = new MariaDbServerVersion(new Version(11, 4, 0));
-    options.UseMySql(connStr, serverVersion);
+    options.UseMySql(connStr, serverVersion, mySql =>
+    {
+        mySql.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
+    });
 });
+
+// ----- Identity (ApplicationUser + roller) -----
+builder.Services
+    .AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        // Her kan du legge til strengere passordregler osv. om ønskelig
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager();
+
+// Registrer cookie-skjemaene Identity bruker (Identity.Application osv.)
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme       = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddIdentityCookies();
+
+builder.Services.AddAuthorization();
+
+// MVC
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Kjør migrasjoner automatisk ved oppstart
+// ----- Migrasjoner + seeding ved oppstart -----
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    var services = scope.ServiceProvider;
+
+    var db = services.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();          // kjør migrasjoner
+
+    await SeedData.InitializeAsync(services);  // seed roller + brukere
 }
 
+// ----- Middleware-pipeline -----
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -36,9 +73,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.MapStaticAssets();
+
 app.UseRouting();
 
-app.MapStaticAssets();
+app.UseAuthentication();   // må komme før UseAuthorization
+app.UseAuthorization();
 
 app.MapControllerRoute(
         name: "default",

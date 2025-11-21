@@ -1,145 +1,146 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OBLIG1.Data;
-using OBLIG1.Models;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
-
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using OBLIG1.Models;
 
 namespace OBLIG1.Controllers
 {
-    // Simple ViewModel for login
     public class LoginVm
     {
-        public string? Email { get; set; }
-        public string? Password { get; set; }
+        [Required, EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required, DataType(DataType.Password)]
+        public string Password { get; set; } = "";
     }
 
     public class AuthController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AuthController(ApplicationDbContext context)
+        public AuthController(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-        }
-        
-        //Forgot Password
-        [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ForgotPassword(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                ModelState.AddModelError("", "Please enter your email address.");
-                return View();
-            }
-
-            // Example: find user and send reset link
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "No account found with that email.");
-                return View();
-            }
-
-            // TODO: generate and email reset token (for now, simulate)
-            ViewBag.Message = "Password reset link sent to your email.";
-            return View();
-        }
-
-
-        // Pilot login page (default)
+        // Førstesiden – pilot-login som default
         [HttpGet]
         public IActionResult Index() => View(new LoginVm());
 
+        // -------- Pilot-login --------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult PilotLogin(LoginVm vm)
+        public async Task<IActionResult> PilotLogin(LoginVm vm)
         {
             if (!ModelState.IsValid) return View("Index", vm);
 
-            var user = _context.Users
-                .FirstOrDefault(u => u.Email == vm.Email && u.Password == vm.Password);
-
+            var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                ModelState.AddModelError("", "Invalid login attempt.");
                 return View("Index", vm);
             }
 
-            if (user.Role != "Pilot")
+            // Sjekk at brukeren faktisk har rollen Pilot
+            if (!await _userManager.IsInRoleAsync(user, "Pilot"))
             {
-                ModelState.AddModelError("", "You are not a pilot");
+                ModelState.AddModelError("", "You are not a Pilot user.");
                 return View("Index", vm);
             }
 
-            // Pilot dashboard
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View("Index", vm);
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
-        // Registerer login page
+        // -------- Registerfører-login --------
         [HttpGet]
         public IActionResult Registerforer() => View(new LoginVm());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Registerforer(LoginVm vm)
+        public async Task<IActionResult> Registerforer(LoginVm vm)
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var user = _context.Users
-                .FirstOrDefault(u => u.Email == vm.Email && u.Password == vm.Password);
-
+            var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                ModelState.AddModelError("", "Invalid login attempt.");
                 return View(vm);
             }
 
-            if (user.Role != "Registerer")
+            if (!await _userManager.IsInRoleAsync(user, "Registerforer"))
             {
-                ModelState.AddModelError("", "You are not a registerer");
+                ModelState.AddModelError("", "You are not a Registrar user.");
                 return View(vm);
             }
 
-            // Registerer dashboard
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
+
             return RedirectToAction("Overview", "Obstacle");
         }
 
-        // Admin login page
+        // -------- Admin-login --------
         [HttpGet]
         public IActionResult Admin() => View(new LoginVm());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Admin(LoginVm vm)
+        public async Task<IActionResult> Admin(LoginVm vm)
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var user = _context.Users
-                .FirstOrDefault(u => u.Email == vm.Email && u.Password == vm.Password);
-
+            var user = await _userManager.FindByEmailAsync(vm.Email);
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                ModelState.AddModelError("", "Invalid login attempt.");
                 return View(vm);
             }
 
-            if (user.Role != "Admin")
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                ModelState.AddModelError("", "You are not an admin");
+                ModelState.AddModelError("", "You are not an Admin user.");
                 return View(vm);
             }
 
-            // Admin dashboard
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(vm);
+            }
+
+            // Redirect to Admin dashboard (Users list)
             return RedirectToAction("Users", "Admin");
         }
+
+
+        // Logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index");
+        }
+
+        // Valgfritt AccessDenied-view
+        [HttpGet]
+        public IActionResult AccessDenied() => View();
     }
 }
