@@ -1,6 +1,32 @@
-# Dokumentasjon - OBLIG 1
+# IS-202 - OBLIG 2
 
-## 1. Drift og implementering
+**Gruppe 11**
+**Repository:** [https://github.com/filipedv/IS-202.git]
+
+| Navn | E-post | GitHub-brukernavn |
+|---|---|---|
+| Silje Solberg | siljeso@uia.no | siljesolberg |
+| Jihyung Choi | jihyungc@uia.no | jihyung-choi |
+| Ida Elise Jamissen | iejamissen@uia.no | idaelisej |
+| Sivert Dørum | sivertd@uia.no | sivertdorum |
+| Filip Edvardsen | filiped@uia.no | filipedv |
+| Øyvind Birkeland | oyvindbi@uia.no | OyvindBirkeland |
+---
+
+## 1. Introduksjon
+Det er en applikasjon laget for å registrere og administrere hindringer som kan påvirke piloter. Oblig 2 bygger mer på Oblig 1 og inkluderer:
+
+- Kobling til **MariaDB**, med både applikasjon og database kjørende i Docker.
+- **Identitetshåndtering**, som tillater registrering av nye brukere og lagring i databasen.
+- **Autentisering og autoriserng**, slik at brukere kan logge inn og administrere hindringer.
+- Funksjonalitet for både **pilot og registerfører**, som definert av Kartverket.
+- Kartskjema for å legge til **punkt og linje** på kartet.
+- Mobiltilpasset frontend for piloter.
+- Enkel oversikt over hindringer.
+- Implementerte sikkerhetstiltak.
+- Omfattende testing (enhet, system, sikkerhet og brukervennlighet).
+
+Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsler, med dynamisk innhold hentet fra serveren. 
 
 ### Systemkrav
 - .NET 9 SDK eller nyere
@@ -17,16 +43,30 @@
 4. Kjør applikasjonen lokalt:<br>
    Med Docker<br>
    *docker compose up --build*<br>
-   eller direkte med .NET<br>
+   eller direkte med .NET (uten database)<br>
    *dotnet run*
 6. Åpne nettleser og naviger til *http://localhost:5134*
 
-### Driftsinformasjon
-- Alle registrerte hindringer lagres midlertidig i applikasjonens minne via List&lt;ObstacleData&gt;.
-- Hvis serveren startes på nytt, vil alle hindringer som ikke er lagret eksternt, forsvinne.
-- Internett tilgang kreves for at kartet (Leaflet og Leaflet-Draw) skal fungere.
+## 2. Brukere og roller
+| E-post | Passord | Rolle |
+|---|---|---|
+| pilot1@example.com | Pilot1! | Pilot |
+| registerforer@example.com | Register1! | Registerfører |
+| admin@example.com | Admin1! | Administrator |
 
-## 2. Systemarkitektur
+Nye brukere kan registreres via administratorbruker.
+
+## 3. Funksjonalitet
+- Brukerregistrering og autentisering
+- Rollbaser tilgang (Pilot / Registerfører / Administrator)
+- Innmelding av hindringer på kart (punkt og linje)
+- GeoJSON-lagring av hindringer
+- Oversikt over registrerte hindringer
+- Mobilvennlig brukergrensesnitt
+- Midlertidig og permanent lagring (via MariaDB)
+- Implementerte sikkehetstiltak
+
+## 4. Systemarkitektur
 
 ### Arkitektur
 - Modell : ObstacleData
@@ -46,52 +86,36 @@
 - Leaflet og Leaflet-Draw for interaktivt kartvisning og tegning.
 - TailwindCSS/Bootstrap for visuell presentasjon og responsivt design.
 
-### Informasjonsflyt
-1. Bruker navigerer til Home og ser velkomstmelding og interaktivt kart.
-2. Bruker velger Register Obstacle og åpner DataForm.
-3. Bruker fyller ut skjema og tegner hinder på kartet (GeoJSON data lagres i et skjult felt, koordinater)
-4. Skjemaet sendes via POST til controlleren som lagrer hindringen i minnet.
-5. Bruker navigerer til Overview for å se en samlet oversikt over alle registrerte hindringer.
+## 5. Testing
+Testing er gjennomført for å sikre korrekt funksjonalitet, dataintegritet og brukervennlighet. Testene er implementert med xUnit.
 
-## 3. Testscenarier
+### Eksempler på enhetstester
+1. DefaultObstacleNameTest - verifiserer at hindringsnavn kan være tomt:
+   var obstacle = new Obstacle { Name = "" };
+   var nameIsEmpty = string.IsNullOrWhiteSpace(obstacle.Name);
+   Assert.True(nameIsEmpty);
 
-### Link til demonstrasjonsvideo<br>
-*https://youtu.be/ik5dVq2Qdds*
-<br>
+2. RejectEmptyGeometry - hindringer med tom geometri lagres ikke i databasen:
+   var vm = new ObstacleData { GeometryGeoJson = "" };
+   var result = await controller.DataForm(vm);
+   Assert.IsType<ViewResult>(result);
+   Assert.False(controller.Modelstate.IsValid);
+   Assert.Equal(0, db.Obstacles.Count());
 
-- **Registrering med fullstendig informasjon**<br>
-  Fyll ut navn, høyde, beskrivelse og tegn på kart -> Submit<br>
-  *Forventet resultat*: Hindringen lagres og vises i Overview<br>
-  *Faktisk resultat*: Bestått
-- **Registrering med ugyldig høyde**<br>
-  Fyll inn negativ verdi -> Submit<br>
-  *Forventet resultat*: Feilmelding vises<br>
-  *Faktisk resultat*: Bestått
-- **Tegning av flere hindringer på kart**<br>
-  Tegn markør, linje og rektangel<br>
-  *Forventet resultat*: GeoJSON-koordinater lagres korrekt<br>
-  *Faktisk resultat*: Bestått
-- **Visning av oversikt**<br>
-  Naviger til Overview<br>
-  *Forventet resultat*: Alle registrerte hindringer vises korrekt<br>
-  *Faktisk resultat*: Bestått
-- **Dynamisk kartjustering**<br>
-  Endre størrelsen på nettleservindu<br>
-  *Forventet resultat*: Kartet justeres korrekt og beholdes synlig<br>
-  *Faktisk resultat*: Bestått
+3. RejectNegativeHeight - hindringer med negativ høyde identifiseres som ugyldige:
+   var obstacle = new Obstacle { Height = -5};
+   bool isNegative = obstacle.Height < 0;
+   Assert.True(isNegative);
 
-## 4. Testresultater
-- Validering av felter fungerer som forventet.
-- GeoJSON data for hindringer lagres korrekt ved bruk av karttegningsfunksjon.
-- Innsending av skjemaet sender data til serveren på riktig måte.
-- Oversiktsiden viser alle registrerte hindringer korrekt.
-- Kartet oppdateres dynamisk ved endring av skjermstørrelse uten problemer.
+### Testkategorier
+- Enhetstester: Verifiserer individuell komponenlogikk
+- Systemtester: Kontrollere integrasjon mellom frontend, controller og database
+- Sikkerhetstester: Bekrefter korrekt autentisering og autorisering
+- Brukervennlighetstester: Evaluerer mobilgrensesnitt og skjemaer
 
-## 5. Fremtidige forbedringer
-- Lagre hindringer permanent i en database i stedet for kun i midlertidig minne.
-- Mulighet til å redigere eksisterende hindringer.
-- Legge til søk- og filtreringsfunksjoner på oversiktssiden.
-- Autentisering og rollebasert tilgang (login side for administrator/pilot).
+## Kjøring av tester
+dotnet test
 
+(Alle tester er tilgjengelig i OBLIG1.Tests - prosjektet)
 
   
