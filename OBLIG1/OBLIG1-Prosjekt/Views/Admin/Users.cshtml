@@ -1,4 +1,4 @@
-@model IEnumerable<OBLIG1.Models.User>
+@model IEnumerable<OBLIG1.Models.ApplicationUser>
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Admin - Users";
@@ -36,16 +36,16 @@
                 {
                     <tr>
                         <td>@user.Id</td>
-                        <td>@user.Username</td>
+                        <td>@user.UserName</td>
                         <td>@user.Email</td>
                         <td>@user.Role</td>
                         <td>@(user.IsBlocked ? "Yes" : "No")</td>
                         <td class="actions">
                             <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-edit">Edit</a>
-                            <a href="javascript:void(0);" onclick="confirmToggleBlock(@user.Id, '@user.Username', @(user.IsBlocked.ToString().ToLower()))" class="btn btn-block">
+                            <a href="javascript:void(0);" onclick="confirmToggleBlock(@user.Id, '@user.UserName', @(user.IsBlocked.ToString().ToLower()))" class="btn btn-block">
                                 @(user.IsBlocked ? "Unblock" : "Block")
                             </a>
-                            <a href="javascript:void(0);" onclick="confirmDelete(@user.Id, '@user.Username')" class="btn btn-delete">Delete</a>
+                            <a href="javascript:void(0);" onclick="confirmDelete(@user.Id, '@user.UserName')" class="btn btn-delete">Delete</a>
                         </td>
                     </tr>
                 }
