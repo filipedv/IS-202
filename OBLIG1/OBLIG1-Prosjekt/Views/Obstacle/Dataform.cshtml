@@ -1,6 +1,8 @@
 @model OBLIG1.Models.ObstacleData
 @{
+    // Tittel som vises i layouten
     ViewData["Title"] = "Register Obstacle";
+    // Flag som layouten kan bruke til å skjule global header/footer (fullskjerm-kart)
     ViewData["HideChrome"] = true; // skjul global header/footer for fullskjerm-kart
 }
 
@@ -27,8 +29,10 @@
 
 
 <!-- Kart som fyller siden (plassen for handlingsfooter reserveres av .with-action-footer) -->
+
 <div class="with-action-footer">
   <div class="rounded shadow-sm">
+    @* Kartcontainer – Leaflet initialiseres på dette elementet *@
     <div id="map" class="form-map w-100"></div>
   </div>
 
@@ -41,10 +45,11 @@
 </div>
 
 @section PageFooter {
+  @* Handlingsfelt nederst på siden (tilbake, tegneverktøy, slett, send inn) *@
   <div class="page-actions-bar">
 
     
-    <!-- BACK (samme farge/stil som Delete) -->
+    @* Tilbake til Home/Index *@
     <a asp-controller="Home" asp-action="Index"
        class="btn icon-btn btn-secondary" aria-label="Back" title="Back">
       <!-- arrow-left icon -->
@@ -127,17 +132,20 @@
       syncGeo();
     });
 
-    // Footer-knapper (ingen edit-modus her)
+    // Aktiver marker-tegning når "Point"-knappen trykkes
     document.getElementById('btn-marker').addEventListener('click', () => {
       drawMarker.enable();
     });
+    // Aktiver linje-tegning når "Line"-knappen trykkes
     document.getElementById('btn-line').addEventListener('click', () => {
       drawPolyline.enable();
     });
+    // Slett alle objekter som er tegnet på kartet
     document.getElementById('btn-delete').addEventListener('click', () => { // Fikset submit knapp
       drawnItems.clearLayers();
       syncGeo();
     });
+    // Ved submit: sjekk at vi faktisk har geometri, synkroniser GeoJSON og send skjema
     document.getElementById('btn-submit').addEventListener('click', () => {
       if (!hasAnyGeometry()) {
         alert('Add at least one point or line before finishing');
@@ -147,15 +155,17 @@
       document.getElementById('obstacleForm').submit();
     });
 
+    // Sjekk om det finnes minst ett lag i FeatureGroup
     function hasAnyGeometry(){
       return Object.keys(drawnItems._layers).length > 0;
     }
+    // Konverterer alle lag til GeoJSON FeatureCollection og legger dette som tekst i det skjulte input-feltet
     function syncGeo() {
       const fc = drawnItems.toGeoJSON();
       document.getElementById('GeometryGeoJson').value = JSON.stringify(fc);
     }
 
-    // Sørg for reflow når vinduet endres
+    // Sørger for at kartet re-rendres riktig når vinduet endrer størrelse
     window.addEventListener('resize', () => map.invalidateSize());
   </script>
 }
