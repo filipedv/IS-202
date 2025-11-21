@@ -4,27 +4,20 @@
 @{
     ViewData["Title"] = "Overview";
     var items = (Model ?? Enumerable.Empty<Obstacle>()).ToList();
+    var isRegistrar = User.IsInRole("Registerforer");
 }
 
 @section Styles {
     <style>
-    /* Svevende back-knapp nederst til venstre */
-    .floating-back{
-      position: fixed;
-      left: max(12px, env(safe-area-inset-left));
-      bottom: calc(12px + env(safe-area-inset-bottom));
-      z-index: 1050; /* over innhold/tabell */
-    }
-
-    .floating-back{
-        position: fixed;
-        left: max(12px, env(safe-area-inset-left));
-        bottom: calc(12px + env(safe-area-inset-bottom));
-        z-index: 1050;
-    }
-  </style>
+        /* Svevende knapp(er) nederst til venstre */
+        .floating-back{
+            position: fixed;
+            left: max(12px, env(safe-area-inset-left));
+            bottom: calc(12px + env(safe-area-inset-bottom));
+            z-index: 1050; /* over innhold/tabell */
+        }
+    </style>
 }
-
 
 @if (!items.Any())
 {
@@ -71,16 +64,48 @@ else
     </div>
     
     <div class="floating-back">
-        <a asp-controller="Home" asp-action="Index"
-           class="btn icon-btn btn-secondary" aria-label="Back" title="Back">
-            <!-- arrow-left icon -->
-            <svg viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14 7l-5 5 5 5"></path>
-                <path d="M20 12H9"></path>
-            </svg>
-            <span>Back</span>
-        </a>
+        @if (isRegistrar)
+        {
+            <!-- Registerfører: grå logout + blå "Register obstacle" -->
+            <div class="d-flex gap-2">
+                <form asp-controller="Auth"
+                      asp-action="Logout"
+                      method="post"
+                      class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="btn icon-btn btn-secondary"
+                            title="Log out"
+                            aria-label="Log out">
+                        <span>Log out</span>
+                    </button>
+                </form>
+
+                <a asp-controller="Home" asp-action="Index"
+                   class="btn icon-btn btn-primary"
+                   aria-label="Register obstacle"
+                   title="Register obstacle">
+                    <span>Register obstacle</span>
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Pilot: kun grå "Back" med ikon -->
+            <a asp-controller="Home" asp-action="Index"
+               class="btn icon-btn btn-secondary"
+               aria-label="Back"
+               title="Back">
+                <!-- arrow-left icon -->
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M14 7l-5 5 5 5"></path>
+                    <path d="M20 12H9"></path>
+                </svg>
+                <span>Back</span>
+            </a>
+        }
     </div>
-    
 }
