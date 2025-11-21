@@ -125,8 +125,10 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
-            return RedirectToAction("Index", "Home");
+            // Redirect to Admin dashboard (Users list)
+            return RedirectToAction("Users", "Admin");
         }
+
 
         // Logout
         [HttpPost]
