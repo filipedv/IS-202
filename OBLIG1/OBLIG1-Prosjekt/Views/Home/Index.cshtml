@@ -1,5 +1,7 @@
 ﻿@{
+    // Setter sidenavn som brukes i Layout
     ViewData["Title"] = "Home Page";
+    // Egen flaggverdi som Layout kan bruke for å skjule "chrome"
     ViewData["HideChrome"] = true;
 }
 
@@ -9,8 +11,11 @@
     </div>
 </div>
 
+// 
 @section PageFooter {
+    @* Footer-seksjonen nederst på siden *@
     <div class="position-relative w-100">
+        
         @* VENSTRE: Logout-knapp *@
         @if (User.Identity?.IsAuthenticated ?? false)
         {
@@ -19,7 +24,11 @@
                       asp-action="Logout"
                       method="post"
                       class="d-inline">
+                    
+                    @* Anti-forgery token for sikkerhet *@
                     @Html.AntiForgeryToken()
+                    
+                    @* Knapp for logout *@
                     <button type="submit" class="btn btn-secondary">
                         Log out
                     </button>
@@ -29,18 +38,26 @@
 
         @* MIDTEN: eksisterende knapper, 100% sentrert *@
         <div class="d-flex justify-content-center gap-3">
+            
+            @* Navigasjon til oversikten over registrerte obstacles *@
             <a asp-controller="Obstacle" asp-action="DataForm" class="btn btn-primary">Register Obstacle</a>
-            <a asp-controller="Obstacle" asp-action="Overview"   class="btn btn-primary">Overview</a>
+            <a asp-controller="Obstacle" asp-action="Overview" class="btn btn-primary">Overview</a>
         </div>
     </div>
 }
 
 @section Scripts {
     <script>
+        // Oppretter Leaflet-kart i div-en med id="map".
+        // Startposisjon er Kristiansand (58.1467, 7.9956) med zoom 13.
         var map = L.map('map').setView([58.1467, 7.9956], 13); // kart lokasjon til Kristiansand
+        
+        // Legger til OpenStreetMap som flislag (tile layer)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
+        // Oppdaterer kartets størrelse når vinduet endrer størrelse
         window.addEventListener('resize', function(){ map.invalidateSize(); });
     </script>
 }

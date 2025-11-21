@@ -1,5 +1,6 @@
 namespace OBLIG1.Models
 {
+    //Status på hinderet
     public enum ObstacleStatus
     {
         Pending = 0,
