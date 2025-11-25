@@ -88,6 +88,15 @@ body { margin-bottom: 0 !important; }
     font-size: 1.125rem;
     border-radius: 12px;
 }
+
+/* Logout-knappen skal være liten */
+.page-actions .logout-btn {
+    min-width: 0;          /* overstyrer min-width: 220px */
+    width: auto;
+    padding: 1.125rem 1.5rem;
+    font-size: 1.0rem;
+}
+
 .page-actions-bar{
     display: flex;
     flex-wrap: wrap;
