@@ -27,24 +27,24 @@ namespace OBLIG1.Controllers
 
         // Tar imot innsending fra DataForm og oppretter et nytt hinder
         [HttpPost]
-        [ValidateAntiForgeryToken] // Beskyttelse mot CSRF-angrep
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DataForm(ObstacleData vm)
         {
-            // Krever at brukeren har tegnet et objekt i kartet (GeoJSON-geometri)
             if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
             {
                 ModelState.AddModelError(nameof(vm.GeometryGeoJson),
                     "Draw the obstacle on the map before submitting.");
+            }
+
+            if (!ModelState.IsValid)
+            {
                 return View(vm);
             }
 
-            // Hent innlogget brukers Id (fra claims)
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Mapper ViewModel til domeneobjektet Obstacle
             var entity = new Obstacle
             {
-                // Bruk standardnavn hvis brukeren ikke har oppgitt noe
                 Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
                 Height          = (vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight,
                 Description     = vm.ObstacleDescription ?? string.Empty,
@@ -55,11 +55,9 @@ namespace OBLIG1.Controllers
                 Status          = ObstacleStatus.Pending
             };
 
-            // Legg til nytt hinder i databasen
             _db.Obstacles.Add(entity);
             await _db.SaveChangesAsync();
 
-            // Etter registrering sendes bruker tilbake til forsiden
             return RedirectToAction("Index", "Home");
         }
 
