@@ -4,5 +4,5 @@ public static class AppRoles
 {
     public const string Pilot         = "Pilot";
     public const string Registrar     = "Registerforer";
-    public const string Admin = "Administrator";
+    public const string Admin         = "Admin";
 }
