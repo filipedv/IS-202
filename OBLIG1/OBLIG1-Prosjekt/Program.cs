@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using OBLIG1.Data;
 using OBLIG1.Models;
+using OBLIG1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             errorNumbersToAdd: null);
     });
 });
+
+builder.Services.AddScoped<IObstacleService, ObstacleService>();
 
 // ----- Identity (ApplicationUser + roller) -----
 builder.Services
