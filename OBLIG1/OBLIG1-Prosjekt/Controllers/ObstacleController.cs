@@ -10,7 +10,8 @@ using OBLIG1.Models;
 namespace OBLIG1.Controllers
 {
     // Kun innloggede brukere i én av disse rollene får tilgang
-    [Authorize(Roles = "Pilot,Registerforer")]
+    [Authorize(Roles = $"{AppRoles.Pilot},{AppRoles.Registrar}")]
+    
     public class ObstacleController : Controller
     {
         // Databasekontekst – brukes til å lese/lagre Obstacle-objekter
@@ -72,7 +73,8 @@ namespace OBLIG1.Controllers
             IQueryable<Obstacle> q = _db.Obstacles
                 .OrderByDescending(o => o.RegisteredAt);
 
-            if (User.IsInRole("Registerforer"))
+            if (User.IsInRole(AppRoles.Registrar))
+
             {
                 // Registrar ser alle hindere
             }
@@ -119,7 +121,7 @@ namespace OBLIG1.Controllers
             if (e == null) return NotFound();
 
             // Pilot kan bare redigere egne hindere
-            if (!User.IsInRole("Registerforer"))
+            if (!User.IsInRole(AppRoles.Registrar))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (e.CreatedByUserId != userId)
@@ -148,7 +150,7 @@ namespace OBLIG1.Controllers
                 // Status-info til view
                 Status        = e.Status,
                 StatusOptions = GetStatusOptions(e.Status),
-                CanEditStatus = User.IsInRole("Registerforer"),
+                CanEditStatus = User.IsInRole(AppRoles.Registrar),
 
                 CreatedByUser = createdByEmail ?? "(unknown)"
             };
@@ -167,7 +169,7 @@ namespace OBLIG1.Controllers
             {
                 vm.TypeOptions     = GetTypeOptions(vm.Type);
                 vm.StatusOptions   = GetStatusOptions(vm.Status);
-                vm.CanEditStatus   = User.IsInRole("Registerforer");
+                vm.CanEditStatus   = User.IsInRole(AppRoles.Registrar);
                 return View(vm);
             }
 
@@ -176,7 +178,7 @@ namespace OBLIG1.Controllers
             if (e == null) return NotFound();
 
             // Pilot kan bare lagre egne hindere
-            if (!User.IsInRole("Registerforer"))
+            if (!User.IsInRole(AppRoles.Registrar))
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (e.CreatedByUserId != userId)
@@ -192,7 +194,7 @@ namespace OBLIG1.Controllers
             e.GeometryGeoJson = vm.GeometryGeoJson;
 
             // Kun registerfører kan endre status
-            if (User.IsInRole("Registerforer"))
+            if (User.IsInRole(AppRoles.Registrar))
                 e.Status = vm.Status;
 
             // Lagre endringer til databasen

@@ -17,7 +17,7 @@ namespace OBLIG1.Data
             var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
 
             // 1) Roller som skal finnes i systemet
-            string[] roles = { "Pilot", "Registerforer", "Admin" };
+            string[] roles = { AppRoles.Pilot, AppRoles.Registrar, AppRoles.Admin };
 
             foreach (var roleName in roles)
             {
@@ -28,30 +28,29 @@ namespace OBLIG1.Data
             }
 
             // 2) Brukere (disse vil alltid få "kjent" passord når appen starter)
-
             await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "pilot1@example.com",
                 password: "Pilot1!",
-                role: "Pilot");
+                role: AppRoles.Pilot);
 
             await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "pilot2@example.com",
                 password: "Pilot2!",
-                role: "Pilot");
+                role: AppRoles.Pilot);
 
             await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "registerforer@example.com",
                 password: "Register1!",
-                role: "Registerforer");
+                role: AppRoles.Registrar);
 
             await EnsureUserWithRoleAndPasswordAsync(
                 userManager,
                 email: "admin@example.com",
                 password: "Admin1!",
-                role: "Admin");
+                role: AppRoles.Admin);
         }
         
         // Sørger for at brukeren finnes, har gitt rolle
