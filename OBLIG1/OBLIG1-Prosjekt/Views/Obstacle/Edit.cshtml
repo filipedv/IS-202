@@ -239,10 +239,14 @@
 
     // Lag en feature-gruppe for tegnet geometri
     const drawnItems = new L.FeatureGroup().addTo(map);
-    
+
     // Last eksisterende GeoJSON
-    const existing = @Html.Raw(string.IsNullOrWhiteSpace(Model.GeometryGeoJson) ? "null" : Model.GeometryGeoJson);
-   
+    @{
+    var geo = string.IsNullOrWhiteSpace(Model.GeometryGeoJson)
+    ? "null"
+    : Model.GeometryGeoJson;
+    }
+    const existing = @Html.Raw(geo);
     if (existing) {
       const layer = L.geoJSON(existing, {
         onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)
