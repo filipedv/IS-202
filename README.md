@@ -1,4 +1,4 @@
-# IS-202 - OBLIG 2
+# IS-202 - Obstacle Reporting System
 
 **Gruppe 11**
 **Repository:** [https://github.com/filipedv/IS-202.git]
@@ -14,79 +14,114 @@
 ---
 
 ## 1. Introduksjon
-Det er en applikasjon laget for å registrere og administrere hindringer som kan påvirke piloter. Oblig 2 bygger mer på Oblig 1 og inkluderer:
+Denne applikasjonen, Obstacle Reporting System lar piloter rapportere hindere, registerfører varlidere dem, og administratorer administrere brukere. Hindere vises i et kartbasert grensesnitt og lagres i MariaDB. Systemet kjører i Docker.
+
+**Hovedfunksjonalitet:**
 
 - Kobling til **MariaDB**, med både applikasjon og database kjørende i Docker.
 - **Identitetshåndtering**, som tillater registrering av nye brukere og lagring i databasen.
-- **Autentisering og autoriserng**, slik at brukere kan logge inn og administrere hindringer.
-- Funksjonalitet for både **pilot og registerfører**, som definert av Kartverket.
-- Kartskjema for å legge til **punkt og linje** på kartet.
-- Mobiltilpasset frontend for piloter.
-- Enkel oversikt over hindringer.
-- Implementerte sikkerhetstiltak.
+- **Autentisering og autoriserng** via Identity Framwork, slik at brukere kan logge inn og administrere hindringer.
+- Innmelding og validering av hindere (punkt og linje på kartet).
+- Oversikt over registrerte hindere.
+- Mobiltilpasset brukergrensesnitt (frontend) for piloter.
+- Implementerte sikkerhetstiltak (SQL Injection, CSRF, XSS).
 - Omfattende testing (enhet, system, sikkerhet og brukervennlighet).
 
 Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsler, med dynamisk innhold hentet fra serveren. 
 
-### Systemkrav
+## 2. Systemkrav
 - .NET 9 SDK eller nyere
-- Visual Studio 2022 eller Rider
+- Visual Studio 2022 eller JetBrains Rider
 - Nettleser med Javascript aktivert
 - Internett tilgang for Leaflet og OpenStreetMap
 
-### Installasjon og oppstart
-1. Klone repositoriet fra GitHub i terminalen:<br>
-   *git clone https://github.com/filipedv/IS-202.git*
-2. Åpne prosjektet i valgt utviklingsmiljø
-3. Bygg applikasjonen i terminalen:<br>
-   *dotnet build*
-4. Kjør applikasjonen lokalt:<br>
-   Med Docker<br>
-   *docker compose up --build*<br>
-   eller direkte med .NET (uten database)<br>
-   *dotnet run*
-6. Åpne nettleser og naviger til *http://localhost:5134*
+## 3. Installasjon og oppstart
 
-## 2. Brukere og roller
+1. Klone repositoriet fra GitHub i terminalen:<br>
+```bash
+   git clone https://github.com/filipedv/IS-202.git
+```
+2. Bytt til prosjektmappen:<br>
+```bash
+   cd IS-202/OBLIG1
+```
+3. Åpne prosjektet i valgt utviklingsmiljø
+4. Bygg applikasjonen i terminalen:<br>
+   ```bash
+   dotnet build
+   ```
+5. Kjør applikasjonen lokalt:<br>
+   Med Docker:<br>
+   ```bash
+   docker compose up --build
+   ```
+   eller direkte med .NET (uten database)<br>
+   ```bash
+   dotnet run
+   ```
+6. Åpne nettleser og naviger til:<br>
+   ```bash
+   http://localhost:5134
+   ```
+
+## 4. Brukere og roller
 | E-post | Passord | Rolle |
 |---|---|---|
 | pilot1@example.com | Pilot1! | Pilot |
 | registerforer@example.com | Register1! | Registerfører |
 | admin@example.com | Admin1! | Administrator |
 
+**Forklaring på roller:**
+- Pilot: Sender inn hindere, lagrer rapporter, ser kun egne registrerte hinder rapporter.
+- Registerfører: Validerer hinder rapporter fra pilot.
+- Admin: Administrerer brukere og roller, full tilgang til systemet.<br>
+
 Nye brukere kan registreres via administratorbruker.
 
-## 3. Funksjonalitet
-- Brukerregistrering og autentisering
-- Rollbaser tilgang (Pilot / Registerfører / Administrator)
-- Innmelding av hindringer på kart (punkt og linje)
-- GeoJSON-lagring av hindringer
-- Oversikt over registrerte hindringer
-- Mobilvennlig brukergrensesnitt
-- Midlertidig og permanent lagring (via MariaDB)
-- Implementerte sikkehetstiltak
+## 5. Systemarkitektur
+Applikasjonen følger **MVC-arkitektur** (Model-View-Controller) og kjører i Docker for å sikre konsistens mellom utviklings- og produksjonsmiljø. Den benytter **MariaDB** som database, og .NET 9 med Identity Framework for autentisering og autorisering.
 
-## 4. Systemarkitektur
-
-### Arkitektur
-- Modell : ObstacleData
-  - Representerer et hinder og inneholder:<br>
-    ObstacleName, ObstacleHeight, ObstacleDescription, IsDraft, GeometryJSON
-- Controller : ObstacleController
-  - DataForm (GET): Viser registreringsskjema
-  - DataForm (POST): Behandler innsending av skjemaet og lagrer hindringer i minnet
-  - Overview (GET): Presenterer oversikt over alle registrerte hindringer
-- Views:
+### Arkitekturkomponenter
+- **Models** : Representerer dataobjekter og forretningslogikk.
+  ex. `ObstacleData`
+  - Representerer et hinder og lagrer:<br>
+    ObstacleName (string), ObstacleHeight (double), ObstacleDescription (string),
+    IsDraft (bool), GeometryJSON (GeoJSON-format for kart)
+  
+- **Controllers** : Håndterer HTTP-forespørsler (GET/POST), validerer input og sender data til views eller til database via Services/EF Core.
+  ex. `ObstacleController`
+  - DataForm (GET): Viser skjema for registrering av hinder
+  - DataForm (POST): Behandler innsending av skjemaet og lagrer hindere i MariaDB
+  - Overview (GET): Viser oversikt over alle registrerte hindere
+    
+- **Views**: Presentasjon av nettsider med HTML/Razor og JavaScript.
   - Home: Velkomstside med interaktivt kart
-  - DataForm: Skjema for registrering av hindringer med integrert karttegningsfunksjonalitet
-  - Overview: Viser samtlige registrerte hindringer i listeformat
+  - DataForm: Skjema for registrering av hinder med Leaflet/Leaflet-Draw for
+    karttegningsfunksjonalitet
+  - Overview: Viser samtlige registrerte hindere i listeformat
+ 
+### Database
+- **MariaDB** brukes som relasjonsdatabase for å lagre hindere, brukere og roller.
+- Databasekjøring i Docker sikrer at utviklere alltid jobber mot samme miljø.
+- EF Core brukes til ORM, og alle spørringer er parametriserte for å forhindre SQL-injection.
+- GeoJSON-data lagres i tekstfelt for å visulisere hindere på kartet.
+
+### Docker Oppsett
+- Applikasjon og database kjører i **separate containere**:
+  - Applikasjonscontaineren kjører .NET 9
+  - MariaDB-containeren kjører databasen med predefinert bruker og passord
+- `docker-compose.yml`håndterer oppstart, bygging og nettverkskobling mellom containere.
+- Fordel: Rask oppstart, isolerte miljøer og enkel distribusjon.
  
 ### Frontend
 - HTML og Razor Pages for struktur og visning.
 - Leaflet og Leaflet-Draw for interaktivt kartvisning og tegning.
 - TailwindCSS/Bootstrap for visuell presentasjon og responsivt design.
 
-## 5. Testing
+### Sikkerhetstiltak i arkitekturen
+...
+
+## 6. Testing
 Testing er gjennomført for å sikre korrekt funksjonalitet, dataintegritet og brukervennlighet. Testene er implementert med xUnit.
 
 ### Eksempler på enhetstester
