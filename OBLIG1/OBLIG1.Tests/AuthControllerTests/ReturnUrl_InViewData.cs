@@ -9,22 +9,23 @@ using OBLIG1.ViewModels;   // hvis LoginVm ligger her
 
 namespace OBLIG1.Tests;
 
-public class AuthControllerTest_LogInView
+public class AuthControllerTest_ReturnUrl
 {
     [Fact]
-    public void Index_Get_ShouldReturnViewWithLoginVm()
+    public void Index_Get_ShouldSetReturnUrlInViewData()
     {
         // Arrange
         var userManagerMock = AuthTestHelper.CreateUserManagerMock();
         var signInManagerMock = AuthTestHelper.CreateSignInManagerMock(userManagerMock.Object);
 
         var controller = new AuthController(signInManagerMock.Object, userManagerMock.Object);
+        var returnUrl = "/Obstacle/Overview";
 
         // Act
-        var result = controller.Index(null);
+        var result = controller.Index(returnUrl);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.IsType<LoginVm>(viewResult.Model);
+        Assert.Equal(returnUrl, viewResult.ViewData["ReturnUrl"]);
     }
 }
