@@ -33,6 +33,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="OBLIG1.Tests\AuthControllerTests\" />
+        <Folder Include="OBLIG1.Tests\SecurityTests\" />
         <Folder Include="wwwroot\Leaflet\" />
     </ItemGroup>
 
