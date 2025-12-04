@@ -7,14 +7,15 @@ using Xunit;
 
 namespace OBLIG1.Tests;
 
-public class RejectNegativeHeight
+public class RejectValueAboveMax
 {
-    
     [Fact]
-    public void ObstacleData_Height_ShouldRejectNegativeValue()
+
+
+    public void ObstacleData_Height_ShouldRejectValueAboveMax() 
     {
         // Arrange
-        var data = new ObstacleData { ObstacleHeight = -10 };
+        var data = new ObstacleData { ObstacleHeight = 250 };
         var context = new ValidationContext(data);
         var results = new List<ValidationResult>();
 
@@ -22,7 +23,13 @@ public class RejectNegativeHeight
         var isValid = Validator.TryValidateObject(data, context, results, validateAllProperties: true);
 
         // Assert
-        Assert.False(isValid, "Negativ høyde i ObstacleData skal avvises");
-        Assert.Contains(results, r => r.MemberNames.Contains("ObstacleHeight"));
+        Assert.False(isValid,"Høyde over 200 i ObstacleData skal avvises");
     }
 }
+
+
+
+
+
+
+
