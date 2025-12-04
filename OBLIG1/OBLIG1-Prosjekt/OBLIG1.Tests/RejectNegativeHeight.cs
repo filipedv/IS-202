@@ -6,7 +6,7 @@ namespace OBLIG1.Tests;
 public class RejectNegativeHeight
 {
     [Fact]
-    public void Obstacle_ShoulRejectNegativeHeight()
+    public void Obstacle_ShouldRejectNegativeHeight()
     {
         // Arrange
         var obstacle = new Obstacle { Height = -5 };
