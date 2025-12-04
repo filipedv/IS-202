@@ -55,8 +55,10 @@ namespace OBLIG1.Controllers
             return View(list);
         }
 
-        // ---------- CREATE ----------
-
+        // ---------- CREATE : Viser skjema og håndterer opprettelse av ny bruker på Admin side----------
+        
+        //Viser administasjonssiden for å opprette en bruker.
+        //Initialiserer en ViewModel og henter tilgjengelige roller slik at 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -72,19 +74,20 @@ namespace OBLIG1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminUserEditViewModel vm)
         {
+            // Sikrer at ViewModel følger valideringsreglene
             if (!ModelState.IsValid)
             {
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Manuell validering av passord (Passord kreves spesielt for nye brukere)
             if (string.IsNullOrWhiteSpace(vm.Password))
             {
                 ModelState.AddModelError(nameof(vm.Password), "Password is required.");
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Kontroll for eksisterende bruker (Unngår at to kontoer opprettes med sammen e-postadresse)
             var existing = await _userManager.FindByEmailAsync(vm.Email);
             if (existing != null)
             {
@@ -92,14 +95,14 @@ namespace OBLIG1.Controllers
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Opprettelse av bruker (Brukeren opprettes via UserManager, som håndterer lagring og hashing av passord)
             var user = new ApplicationUser
             {
                 UserName       = vm.Email,
                 Email          = vm.Email,
                 EmailConfirmed = true
             };
-
+            // Tildeling av rolle (Nye brukere knyttes til valgt rolle for tilgangsstyring)
             var createResult = await _userManager.CreateAsync(user, vm.Password);
             if (!createResult.Succeeded)
             {
@@ -109,7 +112,7 @@ namespace OBLIG1.Controllers
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Redirect ved suksess (Brukeren sendes til Index-visningen for å forhindre dobbel innsending ved redirect)
             var roleResult = await _userManager.AddToRoleAsync(user, vm.Role);
             if (!roleResult.Succeeded)
             {
@@ -205,7 +208,7 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- DELETE ----------
-
+        // Sletter en bruker baser på ID
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

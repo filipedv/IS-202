@@ -23,7 +23,8 @@ namespace OBLIG1.Controllers
             return View();
         }
         
-        // Vis egen feilmeldingsside – tillat anonym slik at den også funker ved auth-feil
+        // Viser feilmeldingsside – tillat anonym slik at den også funker ved auth-feil
+        // ResponseCache lagrer ikke cache, man får alltid en oppdatert feilmelding
         [HttpGet]
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
