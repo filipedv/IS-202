@@ -32,7 +32,7 @@ public class ObstacleServiceIntegrationTests : IDisposable
     {
         _db.Dispose();
     }
-    
+
 
     [Fact]
     public async Task CreateAsync_ShouldSaveObstacleToDatabase()
@@ -113,9 +113,26 @@ public class ObstacleServiceIntegrationTests : IDisposable
         // Act
         var result = await _service.CreateAsync(vm, "user-000");
 
-        // Assert - 0 er en gyldig høyde og skal lagres som 0, ikke null
-        Assert.NotNull(result.Height);
+        // Assert - 0 er en gyldig høyde og skal lagres
         Assert.Equal(0, result.Height);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithNegativeHeight_ShouldStoreNullHeight()
+    {
+        // Arrange
+        var vm = new ObstacleData
+        {
+            ObstacleName = "Negative Height",
+            ObstacleHeight = -10,
+            GeometryGeoJson = "{\"type\":\"Point\",\"coordinates\":[10.75,59.91]}"
+        };
+
+        // Act
+        var result = await _service.CreateAsync(vm, "user-neg");
+
+        // Assert - Negative verdier skal konverteres til null
+        Assert.Null(result.Height);
     }
 
     [Fact]
@@ -136,7 +153,7 @@ public class ObstacleServiceIntegrationTests : IDisposable
         var afterCreate = DateTime.UtcNow.AddSeconds(1);
         Assert.InRange(result.RegisteredAt, beforeCreate, afterCreate);
     }
-    
+
 
     [Fact]
     public async Task GetOverviewAsync_AsRegistrar_ShouldReturnAllObstacles()
@@ -202,7 +219,7 @@ public class ObstacleServiceIntegrationTests : IDisposable
         Assert.Equal("Middle", result[1].Name);
         Assert.Equal("Oldest", result[2].Name);
     }
-    
+
 
     [Fact]
     public async Task GetEditViewModelAsync_WithValidId_ShouldReturnViewModel()
@@ -289,7 +306,7 @@ public class ObstacleServiceIntegrationTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal("Someone Elses", result.Name);
     }
-    
+
 
     [Fact]
     public async Task UpdateAsync_ShouldUpdateObstacleFields()
@@ -435,7 +452,115 @@ public class ObstacleServiceIntegrationTests : IDisposable
         Assert.InRange(updated.Height.Value, 99, 101);
     }
 
-    
+
+    // ---------- Delete-tester ----------
+
+    [Fact]
+    public async Task DeleteAsync_ShouldRemoveObstacleFromDatabase()
+    {
+        // Arrange
+        var obstacle = new Obstacle
+        {
+            Name = "To Delete",
+            CreatedByUserId = "owner"
+        };
+        _db.Obstacles.Add(obstacle);
+        await _db.SaveChangesAsync();
+        var id = obstacle.Id;
+
+        var user = CreateUserPrincipal("owner", AppRoles.Pilot);
+
+        // Act
+        var result = await _service.DeleteAsync(id, user);
+
+        // Assert
+        Assert.True(result);
+        var deleted = await _db.Obstacles.FindAsync(id);
+        Assert.Null(deleted);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse()
+    {
+        // Arrange
+        var user = CreateUserPrincipal("any", AppRoles.Registrar);
+
+        // Act
+        var result = await _service.DeleteAsync(9999, user);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_PilotDeletingOthersObstacle_ShouldThrowUnauthorized()
+    {
+        // Arrange
+        var obstacle = new Obstacle
+        {
+            Name = "Not Mine",
+            CreatedByUserId = "other-user"
+        };
+        _db.Obstacles.Add(obstacle);
+        await _db.SaveChangesAsync();
+
+        var pilot = CreateUserPrincipal("my-user", AppRoles.Pilot);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+            () => _service.DeleteAsync(obstacle.Id, pilot));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_RegistrarCanDeleteAnyObstacle()
+    {
+        // Arrange
+        var obstacle = new Obstacle
+        {
+            Name = "Someone Elses",
+            CreatedByUserId = "some-user"
+        };
+        _db.Obstacles.Add(obstacle);
+        await _db.SaveChangesAsync();
+        var id = obstacle.Id;
+
+        var registrar = CreateUserPrincipal("registrar-user", AppRoles.Registrar);
+
+        // Act
+        var result = await _service.DeleteAsync(id, registrar);
+
+        // Assert
+        Assert.True(result);
+        var deleted = await _db.Obstacles.FindAsync(id);
+        Assert.Null(deleted);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_PilotCanDeleteOwnObstacle()
+    {
+        // Arrange
+        var pilotId = "pilot-user";
+        var obstacle = new Obstacle
+        {
+            Name = "My Obstacle",
+            CreatedByUserId = pilotId
+        };
+        _db.Obstacles.Add(obstacle);
+        await _db.SaveChangesAsync();
+        var id = obstacle.Id;
+
+        var pilot = CreateUserPrincipal(pilotId, AppRoles.Pilot);
+
+        // Act
+        var result = await _service.DeleteAsync(id, pilot);
+
+        // Assert
+        Assert.True(result);
+        var deleted = await _db.Obstacles.FindAsync(id);
+        Assert.Null(deleted);
+    }
+
+
     private static ClaimsPrincipal CreateUserPrincipal(string userId, string role)
     {
         var claims = new List<Claim>
@@ -446,7 +571,4 @@ public class ObstacleServiceIntegrationTests : IDisposable
 
         return new ClaimsPrincipal(new ClaimsIdentity(claims, "Test"));
     }
-
-  
 }
-

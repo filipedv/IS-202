@@ -53,11 +53,22 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
-            // Forsøk å logge inn
-            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, isPersistent: false, lockoutOnFailure: false);
+            // Forsøk å logge inn med account lockout
+            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, isPersistent: false, lockoutOnFailure: true);
             if (!result.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                if (result.IsLockedOut)
+                {
+                    ModelState.AddModelError(string.Empty, "Account is locked due to too many failed login attempts. Please try again later.");
+                }
+                else if (result.IsNotAllowed)
+                {
+                    ModelState.AddModelError(string.Empty, "Login is not allowed for this account.");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                }
                 return View(vm);
             }
 
