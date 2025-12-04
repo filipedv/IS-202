@@ -8,7 +8,7 @@ using OBLIG1.Models;
 
 namespace OBLIG1.Tests;
 
-public static class AuthTestHelpers
+public static class AuthTestHelper
 {
     public static Mock<UserManager<ApplicationUser>> CreateUserManagerMock()
     {
