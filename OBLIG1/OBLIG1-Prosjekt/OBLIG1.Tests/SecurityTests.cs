@@ -48,4 +48,44 @@ public class SecurityTests
         Assert.NotNull(result.GeometryGeoJson);
         Assert.Contains("Point", result.GeometryGeoJson);
     }
+    
+    [Fact]
+    public async Task CreateAsync_ShouldRejectInvalidJson()
+    {
+        // Arrange
+        await using var db = CreateInMemoryDb($"GeoJson_InvalidJson_{Guid.NewGuid()}");
+        var service = new ObstacleService(db);
+
+        var vm = new ObstacleData
+        {
+            ObstacleName = "Test",
+            GeometryGeoJson = "{ invalid json }"
+        };
+
+        // Act
+        var result = await service.CreateAsync(vm, "user-123");
+
+        // Assert - invalid JSON should result in null geometry
+        Assert.Null(result.GeometryGeoJson);
+        }
+    [Fact]
+    public async Task CreateAsync_ShouldRejectJsonWithoutTypeProperty()
+    {
+        // Arrange
+        await using var db = CreateInMemoryDb($"GeoJson_NoType_{Guid.NewGuid()}");
+        var service = new ObstacleService(db);
+
+        var vm = new ObstacleData
+        {
+            ObstacleName = "Test",
+            GeometryGeoJson = "{\"coordinates\":[7.99,58.14]}"
+        };
+
+        // Act
+        var result = await service.CreateAsync(vm, "user-123");
+
+        // Assert
+        Assert.Null(result.GeometryGeoJson);
+    }
+    
 }
