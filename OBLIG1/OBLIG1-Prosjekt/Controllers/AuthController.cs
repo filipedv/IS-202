@@ -54,7 +54,12 @@ namespace OBLIG1.Controllers
             }
 
             // Forsøk å logge inn
-            var result = await _signInManager.PasswordSignInAsync(user, vm.Password, isPersistent: false, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(
+                user,
+                vm.Password,
+                isPersistent: false,
+                lockoutOnFailure: false);
+
             if (!result.Succeeded)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -67,29 +72,28 @@ namespace OBLIG1.Controllers
                 return Redirect(returnUrl);
             }
 
-            // Rollebasert redirect
-            if (await _userManager.IsInRoleAsync(user, AppRoles.Admin))
-            {
-                // Admin
-                return RedirectToAction("Index", "Admin");
-            }
+            // Hent alle roller og finn primærrollen
+            var roles = await _userManager.GetRolesAsync(user);
+            var primaryRole = GetPrimaryRole(roles);
 
-            if (await _userManager.IsInRoleAsync(user, AppRoles.Registrar))
+            // Rollebasert redirect med switch
+            switch (primaryRole)
             {
-                // Registerfører
-                return RedirectToAction("Overview", "Obstacle");
-            }
+                case AppRoles.Admin:
+                    return RedirectToAction("Index", "Admin");
 
-            if (await _userManager.IsInRoleAsync(user, AppRoles.Pilot))
-            {
-                // Pilot
-                return RedirectToAction("Index", "Home");
-            }
+                case AppRoles.Registrar:
+                    return RedirectToAction("Overview", "Obstacle");
 
-            // Bruker uten gyldig rolle → logg ut og vis feil
-            await _signInManager.SignOutAsync();
-            ModelState.AddModelError(string.Empty, "Your account does not have a valid role.");
-            return View(vm);
+                case AppRoles.Pilot:
+                    return RedirectToAction("Index", "Home");
+
+                default:
+                    // Bruker uten gyldig rolle → logg ut og vis feil
+                    await _signInManager.SignOutAsync();
+                    ModelState.AddModelError(string.Empty, "Your account does not have a valid role.");
+                    return View(vm);
+            }
         }
 
         // ---------- Logout ----------
@@ -108,5 +112,25 @@ namespace OBLIG1.Controllers
         [HttpGet]
         [AllowAnonymous]
         public IActionResult AccessDenied() => View();
+
+        // ---------- Hjelpemetoder ----------
+
+        /// <summary>
+        /// Bestemmer én primærrolle basert på prioritet:
+        /// Admin > Registrar > Pilot. Returnerer null hvis ingen av disse.
+        /// </summary>
+        private static string? GetPrimaryRole(ICollection<string> roles)
+        {
+            if (roles.Contains(AppRoles.Admin))
+                return AppRoles.Admin;
+
+            if (roles.Contains(AppRoles.Registrar))
+                return AppRoles.Registrar;
+
+            if (roles.Contains(AppRoles.Pilot))
+                return AppRoles.Pilot;
+
+            return null;
+        }
     }
 }
