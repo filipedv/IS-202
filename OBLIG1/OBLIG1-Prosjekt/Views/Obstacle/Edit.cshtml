@@ -1,4 +1,6 @@
 @model OBLIG1.Models.ObstacleEditViewModel
+@using System.Text.Json
+
 @{
     ViewData["Title"] = "Edit obstacle";
 }
@@ -144,7 +146,7 @@
     <div class="edit-card">
       <form asp-action="Edit" method="post" id="editForm" novalidate>
         @Html.AntiForgeryToken()
-        <!-- Skult ID og Geo -->
+        <!-- Skjult ID og Geo -->
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="GeometryGeoJson" id="GeometryGeoJson" />
 
@@ -240,13 +242,26 @@
     // Lag en feature-gruppe for tegnet geometri
     const drawnItems = new L.FeatureGroup().addTo(map);
 
-    // Last eksisterende GeoJSON
+    // Last eksisterende GeoJSON (TRYGG variant)
     @{
-    var geo = string.IsNullOrWhiteSpace(Model.GeometryGeoJson)
-    ? "null"
-    : Model.GeometryGeoJson;
+        var geoText = string.IsNullOrWhiteSpace(Model.GeometryGeoJson)
+            ? null
+            : Model.GeometryGeoJson;
+
+        var geoJsonLiteral = JsonSerializer.Serialize(geoText);
     }
-    const existing = @Html.Raw(geo);
+
+    const geoText = @Html.Raw(geoJsonLiteral); // alltid en streng eller null
+    let existing = null;
+
+    if (geoText) {
+      try {
+        existing = JSON.parse(geoText);
+      } catch (e) {
+        console.error("Ugyldig GeoJSON lagret på hindret", e);
+      }
+    }
+
     if (existing) {
       const layer = L.geoJSON(existing, {
         onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)

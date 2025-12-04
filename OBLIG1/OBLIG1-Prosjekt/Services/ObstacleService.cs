@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using OBLIG1.Data;
 using OBLIG1.Models;
@@ -9,6 +10,10 @@ public class ObstacleService : IObstacleService
 {
     private readonly ApplicationDbContext _db;
 
+    // En enkel grense for hvor stor GeoJSON-strengen kan være
+    // (juster opp/ned etter behov)
+    private const int MaxGeoJsonLength = 100_000;
+
     public ObstacleService(ApplicationDbContext db)
     {
         _db = db;
@@ -16,6 +21,9 @@ public class ObstacleService : IObstacleService
 
     public async Task<Obstacle> CreateAsync(ObstacleData vm, string userId)
     {
+        // Valider GeoJSON før vi lagrer noe
+        ValidateGeoJsonOrThrow(vm.GeometryGeoJson);
+
         var entity = new Obstacle
         {
             Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
@@ -27,7 +35,6 @@ public class ObstacleService : IObstacleService
             CreatedByUserId = userId,
             Status          = ObstacleStatus.Pending
         };
-
 
         _db.Obstacles.Add(entity);
         await _db.SaveChangesAsync();
@@ -105,6 +112,9 @@ public class ObstacleService : IObstacleService
                 throw new UnauthorizedAccessException();
         }
 
+        // Valider GeoJSON før vi oppdaterer
+        ValidateGeoJsonOrThrow(vm.GeometryGeoJson);
+
         e.Name        = vm.Name;
         e.Description = vm.Description;
         e.Type        = vm.Type;
@@ -121,5 +131,36 @@ public class ObstacleService : IObstacleService
 
         await _db.SaveChangesAsync();
         return true;
+    }
+
+    /// <summary>
+    /// Sjekker at GeoJSON-strengen er kort nok og gyldig JSON.
+    /// Kaster ArgumentException hvis noe er galt.
+    /// </summary>
+    private static void ValidateGeoJsonOrThrow(string? geoJson)
+    {
+        if (string.IsNullOrWhiteSpace(geoJson))
+            return; // Tomt er lov, hvis domenet deres tillater det
+
+        if (geoJson.Length > MaxGeoJsonLength)
+            throw new ArgumentException(
+                $"Geometry JSON is too long (>{MaxGeoJsonLength} characters).",
+                nameof(geoJson));
+
+        try
+        {
+            using var doc = JsonDocument.Parse(geoJson);
+
+            // Hvis du vil være strengere, kan du f.eks. kreve objekt/array:
+            // if (doc.RootElement.ValueKind != JsonValueKind.Object &&
+            //     doc.RootElement.ValueKind != JsonValueKind.Array)
+            // {
+            //     throw new ArgumentException("Geometry must be a JSON object or array.", nameof(geoJson));
+            // }
+        }
+        catch (JsonException ex)
+        {
+            throw new ArgumentException("Geometry is not valid JSON.", nameof(geoJson), ex);
+        }
     }
 }
