@@ -6,15 +6,14 @@ using OBLIG1.Services;
 using Xunit;
 
 namespace OBLIG1.Tests;
-//sjekker at høyden på hinder ikke kan være et negativt tall
-public class RejectNegativeHeight
+//tester at navnet på hinder ikke kan være over 100
+public class RejectTooLongObstacleNames
 {
-    
     [Fact]
-    public void ObstacleData_Height_ShouldRejectNegativeValue()
+    public void ObstacleData_Name_ShouldRejectTooLongString()
     {
-        // Arrange
-        var data = new ObstacleData { ObstacleHeight = -10 };
+        // Arrange - MaxLength(100)
+        var data = new ObstacleData { ObstacleName = new string('A', 101) };
         var context = new ValidationContext(data);
         var results = new List<ValidationResult>();
 
@@ -22,7 +21,7 @@ public class RejectNegativeHeight
         var isValid = Validator.TryValidateObject(data, context, results, validateAllProperties: true);
 
         // Assert
-        Assert.False(isValid, "Negativ høyde i ObstacleData skal avvises");
-        Assert.Contains(results, r => r.MemberNames.Contains("ObstacleHeight"));
+        Assert.False(isValid);
+        Assert.Contains(results, r => r.MemberNames.Contains("ObstacleName"));
     }
 }

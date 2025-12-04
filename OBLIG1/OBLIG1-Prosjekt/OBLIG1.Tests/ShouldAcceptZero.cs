@@ -6,7 +6,7 @@ using OBLIG1.Services;
 using Xunit;
 
 namespace OBLIG1.Tests;
-
+//sjekker at høyden på hinder kan være 0
 public class ShouldAcceptZero
 {
     [Fact]

@@ -2,7 +2,7 @@
 using Xunit;
 
 namespace OBLIG1.Tests;
-
+//sjekker at hinder ikke trenger å ha et navn
 public class DefaultObstacleNameTest
 {
 

@@ -6,12 +6,10 @@ using OBLIG1.Services;
 using Xunit;
 
 namespace OBLIG1.Tests;
-
+//sjekker at hinder ikke kan være høyere enn maks høyde
 public class RejectValueAboveMax
 {
     [Fact]
-
-
     public void ObstacleData_Height_ShouldRejectValueAboveMax() 
     {
         // Arrange
