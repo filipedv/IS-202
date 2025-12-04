@@ -2,84 +2,90 @@
 @using System.Text.Json
 
 @{
-    ViewData["Title"] = "Edit obstacle";
+ViewData["Title"] = "Edit obstacle";
 }
 
 @section Styles {
-  <style>
-    /* Layout */
-    .edit-wrap{
-      display:grid;
-      gap:18px;
-      grid-template-columns: 1fr;   /* mobil: én kolonne */
-    }
-    .edit-card{
-      background:#fff;
-      border-radius:14px;
-      border:1px solid #e5e7eb;
-      padding:16px;
-    }
+<!-- Leaflet CSS (kun på denne siden) -->
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin="anonymous" />
 
-    /* Større kart */
-    #edit-map{
-      height: 580px;       
-      border-radius:12px;
-      border:1px solid #e5e7eb;
-    }
+<!-- Leaflet.Draw CSS -->
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
-    /* Verktøylinje */
-    .map-toolbar{
-      display:flex;
-      flex-wrap:nowrap;
-      gap:6px;                    
-      margin-bottom:8px;
-    }
+<style>
+  /* Layout */
+  .edit-wrap {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr;   /* mobil: én kolonne */
+  }
 
-    /* Ikonknapper - større tekst og mer luft */
-    .map-toolbar .btn.icon-btn{
-      display:inline-flex !important;
-      align-items:center !important;
-      gap:4px !important;
-      padding:4px 40px !important;  /* bredere enn 2x6 */
-      border-radius:8px !important;
-      border:none !important;
-      min-height:auto !important;
-      min-width:auto !important;
-      width:auto !important;
-      font-size:1.2rem !important;  /* litt større tekst */
-      line-height:1.1 !important;
-      white-space:nowrap !important;
-      flex:0 0 auto !important;
-    }
+  .edit-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+  }
 
-    .map-toolbar .btn.icon-btn svg{
-      width:25px !important;
-      height:25px !important;
-      display:block;
-    }
+  /* Større kart */
+  #edit-map {
+    height: 580px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+  }
 
-    .map-toolbar .btn.icon-btn .label{
-      display:inline-block;
-    }
+  /* Verktøylinje */
+  .map-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
 
-    /* Desktop - to kolonner */
-    @@media (min-width: 992px){
-      .edit-wrap{
-        grid-template-columns: 1fr 1fr;
-      }
+  /* Ikonknapper - større tekst og mer luft */
+  .map-toolbar .btn.icon-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 4px 40px !important;  /* bredere enn 2x6 */
+    border-radius: 8px !important;
+    border: none !important;
+    min-height: auto !important;
+    min-width: auto !important;
+    width: auto !important;
+    font-size: 1.2rem !important;  /* litt større tekst */
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+
+  .map-toolbar .btn.icon-btn svg {
+    width: 25px !important;
+    height: 25px !important;
+    display: block;
+  }
+
+  .map-toolbar .btn.icon-btn .label {
+    display: inline-block;
+  }
+
+  /* Desktop - to kolonner */
+  @@media (min-width: 992px) {
+    .edit-wrap {
+      grid-template-columns: 1fr 1fr;
     }
-  </style>
+  }
+</style>
 }
 
-
 <div class="container my-4">
-
   <div class="edit-wrap">
     <!-- Venstre side: kart og verktøy -->
     <div class="edit-card">
       <div class="map-toolbar">
-
-        
         <!-- Tegn punkt -->
         <button type="button"
                 id="btn-marker"
@@ -87,12 +93,11 @@
                 aria-label="Point"
                 title="Point">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+            <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
           </svg>
           <span class="label">Point</span>
         </button>
 
-        
         <!-- Tegn linje -->
         <button type="button"
                 id="btn-line"
@@ -101,16 +106,15 @@
                 title="Line">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" aria-hidden="true">
-            <polyline points="4,16 9,8 15,12 20,6"/>
-            <circle cx="4" cy="16" r="2" fill="currentColor"/>
-            <circle cx="9" cy="8" r="2"  fill="currentColor"/>
-            <circle cx="15" cy="12" r="2" fill="currentColor"/>
-            <circle cx="20" cy="6" r="2"  fill="currentColor"/>
+            <polyline points="4,16 9,8 15,12 20,6" />
+            <circle cx="4" cy="16" r="2" fill="currentColor" />
+            <circle cx="9" cy="8" r="2" fill="currentColor" />
+            <circle cx="15" cy="12" r="2" fill="currentColor" />
+            <circle cx="20" cy="6" r="2" fill="currentColor" />
           </svg>
           <span class="label">Line</span>
         </button>
 
-        
         <!-- Rediger geometri -->
         <button type="button"
                 id="btn-edit"
@@ -118,12 +122,11 @@
                 aria-label="Edit geometry"
                 title="Edit">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm14.71-9.04c.39-.39.39-1.02 0-1.41l-2.12-2.12a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.61-1.61z"/>
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm14.71-9.04c.39-.39.39-1.02 0-1.41l-2.12-2.12a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.61-1.61z" />
           </svg>
           <span class="label">Edit</span>
         </button>
 
-        
         <!-- Slette alt -->
         <button type="button"
                 id="btn-clear"
@@ -131,7 +134,7 @@
                 aria-label="Delete"
                 title="Delete">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM6 9h2v9H6V9z"/>
+            <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM6 9h2v9H6V9z" />
           </svg>
           <span class="label">Delete</span>
         </button>
@@ -141,7 +144,6 @@
       <div id="edit-map"></div>
     </div>
 
-    
     <!-- Høyre side: hinderdata -->
     <div class="edit-card">
       <form asp-action="Edit" method="post" id="editForm" novalidate>
@@ -156,14 +158,14 @@
           <input asp-for="Name" class="form-control" />
           <span asp-validation-for="Name" class="text-danger"></span>
         </div>
-        
+
         <!-- Type -->
         <div class="mb-3">
           <label asp-for="Type" class="form-label"></label>
           <select asp-for="Type" asp-items="Model.TypeOptions" class="form-select"></select>
           <span asp-validation-for="Type" class="text-danger"></span>
         </div>
-        
+
         <!-- Høyde i fot -->
         <div class="mb-3">
           <label asp-for="HeightFt" class="form-label"></label>
@@ -190,26 +192,25 @@
           <input class="form-control" value="@Model.CreatedByUser" disabled />
         </div>
 
-        
-        <!-- Status (kan ikke nedres av pilot) -->
+        <!-- Status -->
         @if (Model.CanEditStatus)
         {
-          <div class="mb-3">
-            <label asp-for="Status" class="form-label"></label>
-            <select asp-for="Status"
-                    asp-items="Model.StatusOptions"
-                    class="form-select"></select>
-            <span asp-validation-for="Status" class="text-danger"></span>
-          </div>
+        <div class="mb-3">
+          <label asp-for="Status" class="form-label"></label>
+          <select asp-for="Status"
+                  asp-items="Model.StatusOptions"
+                  class="form-select"></select>
+          <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
         }
         else
         {
-          <!-- Pilot: kan ikke endre, men vi må POSTe gjeldende status -->
-          <input type="hidden" asp-for="Status" />
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <input class="form-control" value="@Model.Status" disabled />
-          </div>
+        <!-- Pilot: kan ikke endre, men vi må POSTe gjeldende status -->
+        <input type="hidden" asp-for="Status" />
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <input class="form-control" value="@Model.Status" disabled />
+        </div>
         }
 
         <!-- Knapper -->
@@ -223,122 +224,130 @@
 </div>
 
 @section Scripts {
-  <partial name="_ValidationScriptsPartial" />
-  
+<partial name="_ValidationScriptsPartial" />
 
-  <!-- Leaflet CSS/JS for kart -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<!-- Leaflet JS (kun på denne siden) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        crossorigin="anonymous"></script>
+<!-- Leaflet.Draw JS -->
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
-  <script>
-    // --- Kart ---
-    const map = L.map('edit-map');
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+<script>
+  // --- Kart ---
+  const map = L.map('edit-map');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Lag en feature-gruppe for tegnet geometri
+  const drawnItems = new L.FeatureGroup().addTo(map);
+
+  // Last eksisterende GeoJSON (TRYGG variant)
+  @{
+  var geoText = string.IsNullOrWhiteSpace(Model.GeometryGeoJson)
+  ? null
+  : Model.GeometryGeoJson;
+
+  var geoJsonLiteral = JsonSerializer.Serialize(geoText);
+  }
+
+  const geoText = @Html.Raw(geoJsonLiteral); // alltid en streng eller null
+  let existing = null;
+
+  if (geoText) {
+    try {
+      existing = JSON.parse(geoText);
+    } catch (e) {
+      console.error("Ugyldig GeoJSON lagret på hindret", e);
+    }
+  }
+
+  if (existing) {
+    const layer = L.geoJSON(existing, {
+      onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)
     }).addTo(map);
 
-    // Lag en feature-gruppe for tegnet geometri
-    const drawnItems = new L.FeatureGroup().addTo(map);
-
-    // Last eksisterende GeoJSON (TRYGG variant)
-    @{
-        var geoText = string.IsNullOrWhiteSpace(Model.GeometryGeoJson)
-            ? null
-            : Model.GeometryGeoJson;
-
-        var geoJsonLiteral = JsonSerializer.Serialize(geoText);
-    }
-
-    const geoText = @Html.Raw(geoJsonLiteral); // alltid en streng eller null
-    let existing = null;
-
-    if (geoText) {
-      try {
-        existing = JSON.parse(geoText);
-      } catch (e) {
-        console.error("Ugyldig GeoJSON lagret på hindret", e);
-      }
-    }
-
-    if (existing) {
-      const layer = L.geoJSON(existing, {
-        onEachFeature: (_, lyr) => drawnItems.addLayer(lyr)
-      }).addTo(map);
-      
-      try {
-        const b = layer.getBounds();
-        if (b.isValid()) map.fitBounds(b.pad(0.2)); else map.setView([59.9139, 10.7461], 13);
-      } catch { map.setView([59.9139, 10.7461], 13); }
-    } else {
+    try {
+      const b = layer.getBounds();
+      if (b.isValid()) map.fitBounds(b.pad(0.2)); else map.setView([59.9139, 10.7461], 13);
+    } catch {
       map.setView([59.9139, 10.7461], 13);
     }
+  } else {
+    map.setView([59.9139, 10.7461], 13);
+  }
 
-    
-    // Tegneverktøy
-    const drawMarker = new L.Draw.Marker(map, { icon: new L.Icon.Default() });
-    const drawPolyline = new L.Draw.Polyline(map, { shapeOptions: { color: '#2563eb', weight: 4 } });
+  // Tegneverktøy
+  const drawMarker = new L.Draw.Marker(map, { icon: new L.Icon.Default() });
+  const drawPolyline = new L.Draw.Polyline(map, { shapeOptions: { color: '#2563eb', weight: 4 } });
 
-    let editToolbar = null, deleteToolbar = null;
-    // Deaktiver aktive tegne- eller redigeringsmoduser
-    function disableModes(){
-      if (editToolbar)   { editToolbar.disable();   editToolbar = null; }
-      if (deleteToolbar) { deleteToolbar.disable(); deleteToolbar = null; }
-    }
+  let editToolbar = null, deleteToolbar = null;
 
-    
-    // Hendelser
-    map.on(L.Draw.Event.CREATED, e => {
-      drawnItems.addLayer(e.layer);
-      syncGeo();
-    });
-    map.on('draw:edited',  syncGeo);
-    map.on('draw:deleted', syncGeo);
+  // Deaktiver aktive tegne- eller redigeringsmoduser
+  function disableModes() {
+    if (editToolbar) { editToolbar.disable(); editToolbar = null; }
+    if (deleteToolbar) { deleteToolbar.disable(); deleteToolbar = null; }
+  }
 
-    function syncGeo(){
-      const fc = drawnItems.toGeoJSON();
-      document.getElementById('GeometryGeoJson').value = JSON.stringify(fc);
-      setTimeout(()=> map.invalidateSize(), 50);
-    }
+  // Hendelser
+  map.on(L.Draw.Event.CREATED, e => {
+    drawnItems.addLayer(e.layer);
+    syncGeo();
+  });
+  map.on('draw:edited', syncGeo);
+  map.on('draw:deleted', syncGeo);
 
-    
-    // Knapp for tegning
-    document.getElementById('btn-marker').addEventListener('click', () => {
-      disableModes(); drawMarker.enable();
-    });
-    document.getElementById('btn-line').addEventListener('click', () => {
-      disableModes(); drawPolyline.enable();
-    });
-    // Rediger geometri
-    document.getElementById('btn-edit').addEventListener('click', () => {
-      disableModes();
-      editToolbar = new L.EditToolbar.Edit(map, { featureGroup: drawnItems });
-      editToolbar.enable();
-    });
-    // Slett all geometri
-    document.getElementById('btn-clear').addEventListener('click', () => {
-      disableModes(); drawnItems.clearLayers(); syncGeo();
-    });
+  function syncGeo() {
+    const fc = drawnItems.toGeoJSON();
+    document.getElementById('GeometryGeoJson').value = JSON.stringify(fc);
+    setTimeout(() => map.invalidateSize(), 50);
+  }
 
+  // Knapp for tegning
+  document.getElementById('btn-marker').addEventListener('click', () => {
+    disableModes();
+    drawMarker.enable();
+  });
 
-    // Oppdater GeoJSON før sending av skjema
-    document.getElementById('editForm').addEventListener('submit', syncGeo);
+  document.getElementById('btn-line').addEventListener('click', () => {
+    disableModes();
+    drawPolyline.enable();
+  });
 
+  // Rediger geometri
+  document.getElementById('btn-edit').addEventListener('click', () => {
+    disableModes();
+    editToolbar = new L.EditToolbar.Edit(map, { featureGroup: drawnItems });
+    editToolbar.enable();
+  });
 
-    // Konverter fot → meter live
-    function ftToM(ft){ return (ft / 3.28084); }
-    const ftInput = document.getElementById('HeightFt');
-    const mOut = document.getElementById('heightMeters');
-    function updateMeters(){
-      const v = parseFloat(ftInput?.value);
-      if (isNaN(v)) { mOut.textContent = "0"; return; }
-      mOut.textContent = ftToM(v).toFixed(2);
-    }
-    if (ftInput){ updateMeters(); ftInput.addEventListener('input', updateMeters); }
+  // Slett all geometri
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    disableModes();
+    drawnItems.clearLayers();
+    syncGeo();
+  });
 
+  // Oppdater GeoJSON før sending av skjema
+  document.getElementById('editForm').addEventListener('submit', syncGeo);
 
-    // Oppdater kartet ved vindu-resize
-    window.addEventListener('resize', () => map.invalidateSize());
-  </script>
+  // Konverter fot → meter live
+  function ftToM(ft) { return (ft / 3.28084); }
+  const ftInput = document.getElementById('HeightFt');
+  const mOut = document.getElementById('heightMeters');
+
+  function updateMeters() {
+    const v = parseFloat(ftInput?.value);
+    if (isNaN(v)) { mOut.textContent = "0"; return; }
+    mOut.textContent = ftToM(v).toFixed(2);
+  }
+
+  if (ftInput) {
+    updateMeters();
+    ftInput.addEventListener('input', updateMeters);
+  }
+
+  // Oppdater kartet ved vindu-resize
+  window.addEventListener('resize', () => map.invalidateSize());
+</script>
 }
