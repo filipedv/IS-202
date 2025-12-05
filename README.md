@@ -131,7 +131,33 @@ Testing er gjennomført for å sikre korrekt funksjonalitet, dataintegritet og b
 - Brukervennlighetstester: Evaluerer mobilgrensesnitt og skjemaer
 
 ### Enhetstesting 
-Testene er implementert med xUnit. 
+Prosjektet inneholder et utvalg enhetstester som fokuserer på de mest kritiske delene av applikasjonen. Målet med enhetstestingen har vært å validere:
+
+- domenelogikk (ObstacleService)
+
+- autorisasjon og tilgangskontroll
+
+- innloggingsflyt og validering av brukerinndata
+
+- kontroller-metoder returnerer riktig respons ved ulike scenarier
+
+For å oppnå dette benyttes xUnit som testrammeverk, sammen med Moq for å mocke UserManager og SignInManager i Identity. Dette gjør det mulig å teste autentisering og autorisasjon uten en ekte database eller webserver.
+Eksempler på testede områder:
+
+- Pilot skal kun få tilgang til egne hindere
+
+- Innlogging feiler med ugyldig passord
+
+- Controller returnerer korrekt view når ModelState er ugyldig
+
+- returnUrl håndteres riktig i AuthController
+
+- GeoJSON-validering i ObstacleService avviser ugyldig input
+
+Testene kjøres med:
+
+dotnet test
+ 
 
 ### Kjøring av enhetstester
 ```
