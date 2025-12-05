@@ -40,8 +40,8 @@
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/devcert.pfx"
       ASPNETCORE_Kestrel__Certificates__Default__Password: "Oblig1DevOnly!"
     volumes:
-      # Mapper ./certs på host til /https i containeren
-      - ./certs:/https:ro
+      # Mapper ./certs på host til /https i containeren (skrivbar slik at sertifikat kan genereres automatisk)
+      - ./certs:/https
     ports:
       - "8080:8080"   # HTTP
       - "8443:8443"   # HTTPS

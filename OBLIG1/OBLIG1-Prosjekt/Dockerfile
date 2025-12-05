@@ -2,6 +2,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 
+# Installer openssl for å generere sertifikater
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # Lytt på både HTTP (8080) og HTTPS (8443)
 ENV ASPNETCORE_URLS=http://+:8080;https://+:8443
 
@@ -30,5 +33,10 @@ RUN dotnet publish "OBLIG1-Prosjekt.csproj" -c $BUILD_CONFIGURATION -o /app/publ
 # final
 FROM base AS final
 WORKDIR /app
+
+# Kopier entrypoint script
+COPY ["OBLIG1-Prosjekt/docker-entrypoint.sh", "/usr/local/bin/"]
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "OBLIG1-Prosjekt.dll"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh", "OBLIG1-Prosjekt.dll"]
