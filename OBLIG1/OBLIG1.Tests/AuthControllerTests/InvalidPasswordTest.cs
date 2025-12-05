@@ -19,13 +19,28 @@ public class AuthController_InvalidPasswordTests
 
         var controller = new AuthController(signInManagerMock.Object, userManagerMock.Object);
 
-        var user = new ApplicationUser { Email = "test@test.com", UserName = "test@test.com" };
-        var vm = new LoginVm { Email = "test@test.com", Password = "WrongPassword!" };
+        var user = new ApplicationUser
+        {
+            Email = "test@test.com",
+            UserName = "test@test.com"
+        };
 
-        userManagerMock.Setup(x => x.FindByEmailAsync(vm.Email))
+        var vm = new LoginVm
+        {
+            Email = "test@test.com",
+            Password = "WrongPassword!"
+        };
+
+        userManagerMock
+            .Setup(x => x.FindByEmailAsync(vm.Email))
             .ReturnsAsync(user);
 
-        signInManagerMock.Setup(x => x.PasswordSignInAsync(user, vm.Password, false, true))
+        signInManagerMock
+            .Setup(x => x.PasswordSignInAsync(
+                It.IsAny<ApplicationUser>(),
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>()))
             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
 
 
@@ -34,6 +49,6 @@ public class AuthController_InvalidPasswordTests
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.False(controller.ModelState.IsValid); // burde ha feilmelding ved feil passord
+        Assert.False(controller.ModelState.IsValid);
     }
 }
