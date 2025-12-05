@@ -1,6 +1,4 @@
-﻿version: "3.9"
-
-services:
+﻿services:
   db:
     image: mariadb:lts
     container_name: oblig1_mariadb
@@ -12,7 +10,6 @@ services:
       MARIADB_ROOT_PASSWORD: rootsecret
     volumes:
       - dbdata:/var/lib/mysql
-    # Du trenger egentlig ikke eksponere DB-porten utenfra, men ta den med om dere vil bruke en lokal klient
     ports:
       - "3306:3306"
     healthcheck:
@@ -31,10 +28,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Kjør som Production slik at UseHttpsRedirection() osv. slår inn
       ASPNETCORE_ENVIRONMENT: "Production"
 
-      # Lytt på både HTTP og HTTPS i containeren
+      # Lytt på både HTTP og HTTPS inne i containeren
       ASPNETCORE_URLS: "http://+:8080;https://+:8443"
 
       # Connection string til MariaDB
