@@ -52,6 +52,9 @@ Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsl
    ```
 5. Kjør applikasjonen lokalt:<br>
    Med Docker:<br>
+   Når applikasjonen kjøres lokalt med HTTPS via Docker, bruker den et utviklings-/selvsignert sertifikat.
+   Derfor kan Chrome vise “Not secure” første gang.
+   For å få grønn hengelås må du stole på sertifikatet (trust) på maskinen din.
    ```bash
    docker compose up --build
    ```
