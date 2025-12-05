@@ -51,11 +51,6 @@ body { margin-bottom: 0 !important; }
 .btn-secondary { background:#475569; }
 .btn-block { width:100%; display:block; text-align:center; }
 
-
-/* Skjul global footer-margin når chrome er skjult */
-.no-chrome { margin-bottom: 0; }
-
-
 /* ===== Page footer + kart-høyde ===== */
 :root { --action-footer-space: 120px; }              /* juster ved behov */
 .with-action-footer { padding-bottom: var(--action-footer-space); }
@@ -105,13 +100,6 @@ body { margin-bottom: 0 !important; }
     align-items: center;
 }
 
-/* Ikonknapper (hvis brukt) */
-.icon-btn{
-    min-width: clamp(56px, 10vw, 72px);
-    height: 56px; padding: 0 10px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 12px;
-}
 .icon-btn svg{ display:block; }
 @media (min-width: 1200px){ .icon-btn{ min-width: 72px; height: 64px; } }
 

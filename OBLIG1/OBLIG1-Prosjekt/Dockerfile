@@ -1,13 +1,18 @@
 ﻿# base (runtime)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
+
+# Lytt på både HTTP (8080) og HTTPS (8443)
+ENV ASPNETCORE_URLS=http://+:8080;https://+:8443
+
 EXPOSE 8080
+EXPOSE 8443
 
 # build 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 # Kopier kun csproj først for bedre cache
 COPY ["OBLIG1-Prosjekt/OBLIG1-Prosjekt.csproj", "OBLIG1-Prosjekt/"]
 RUN dotnet restore "OBLIG1-Prosjekt/OBLIG1-Prosjekt.csproj"

@@ -10,4 +10,5 @@ public interface IObstacleService
 
     Task<ObstacleEditViewModel?> GetEditViewModelAsync(int id, ClaimsPrincipal user);
     Task<bool> UpdateAsync(ObstacleEditViewModel vm, ClaimsPrincipal user);
+    Task<bool> DeleteAsync(int id, ClaimsPrincipal user);
 }

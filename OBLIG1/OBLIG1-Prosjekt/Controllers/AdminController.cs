@@ -55,8 +55,10 @@ namespace OBLIG1.Controllers
             return View(list);
         }
 
-        // ---------- CREATE ----------
-
+        // ---------- CREATE : Viser skjema og håndterer opprettelse av ny bruker på Admin side----------
+        
+        //Viser administasjonssiden for å opprette en bruker.
+        //Initialiserer en ViewModel og henter tilgjengelige roller slik at 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -69,22 +71,23 @@ namespace OBLIG1.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> Create(AdminUserEditViewModel vm)
         {
+            // Sikrer at ViewModel følger valideringsreglene
             if (!ModelState.IsValid)
             {
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Manuell validering av passord (Passord kreves spesielt for nye brukere)
             if (string.IsNullOrWhiteSpace(vm.Password))
             {
                 ModelState.AddModelError(nameof(vm.Password), "Password is required.");
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Kontroll for eksisterende bruker (Unngår at to kontoer opprettes med sammen e-postadresse)
             var existing = await _userManager.FindByEmailAsync(vm.Email);
             if (existing != null)
             {
@@ -92,14 +95,14 @@ namespace OBLIG1.Controllers
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Opprettelse av bruker (Brukeren opprettes via UserManager, som håndterer lagring og hashing av passord)
             var user = new ApplicationUser
             {
                 UserName       = vm.Email,
                 Email          = vm.Email,
                 EmailConfirmed = true
             };
-
+            // Tildeling av rolle (Nye brukere knyttes til valgt rolle for tilgangsstyring)
             var createResult = await _userManager.CreateAsync(user, vm.Password);
             if (!createResult.Succeeded)
             {
@@ -109,7 +112,7 @@ namespace OBLIG1.Controllers
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
-
+            // Redirect ved suksess (Brukeren sendes til Index-visningen for å forhindre dobbel innsending ved redirect)
             var roleResult = await _userManager.AddToRoleAsync(user, vm.Role);
             if (!roleResult.Succeeded)
             {
@@ -123,17 +126,21 @@ namespace OBLIG1.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ---------- EDIT ----------
+        // ---------- EDIT: Administrator kan redigere bruker informasjon ----------
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string id)  
         {
+            // Hent bruker, return error hvis den ikke finnes
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
+            // Tilgjengelige roller 
             var roles     = await GetAllRoleNamesAsync();
+            // Brukerens nåværigende rolle
             var userRoles = await _userManager.GetRolesAsync(user);
 
+            // Map data til viewmodel som brukes i edit skjema
             var vm = new AdminUserEditViewModel
             {
                 Id            = user.Id,
@@ -146,40 +153,49 @@ namespace OBLIG1.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] //CSRF beskyttelse: post kommer fra eget skjema 
         public async Task<IActionResult> Edit(AdminUserEditViewModel vm)
         {
+            //Validerer input på roles
             if (!ModelState.IsValid)
             {
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
 
-            var user = await _userManager.FindByIdAsync(vm.Id!);
+            //Sikrer korrekte oppdatertinger
+            var user = await _userManager.FindByIdAsync(vm.Id!); 
             if (user == null) return NotFound();
-
+            // Oppdater e-post og brukernavn (brukernavn settes lik epost for testbrukere)
             user.Email    = vm.Email;
             user.UserName = vm.Email;
 
-            var updateResult = await _userManager.UpdateAsync(user);
+            // Oppdatere bruker i identiity database
+            var updateResult = await _userManager.UpdateAsync(user); 
             if (!updateResult.Succeeded)
             {
+                // Hvis oppdatering feiler blir det vist i view
                 foreach (var e in updateResult.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
 
+                // Fyll inn roller før view returneres
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
 
+            // Hent nåværende roller for brukeren
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (currentRoles.Any())
             {
+                // Fjerner bruker fra eksisterende roller før en ny rolle blir lagt til
                 await _userManager.RemoveFromRolesAsync(user, currentRoles);
             }
 
+            // Legger brukeren til i valgt rolle
             var roleResult = await _userManager.AddToRoleAsync(user, vm.Role);
             if (!roleResult.Succeeded)
             {
+                // Vis error hvis rolletildeling feiler
                 foreach (var e in roleResult.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
 
@@ -187,12 +203,14 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
-            if (!string.IsNullOrWhiteSpace(vm.Password))
+            // Trygg passordendring
+            if (!string.IsNullOrWhiteSpace(vm.Password)) 
             {
                 var token      = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var passResult = await _userManager.ResetPasswordAsync(user, token, vm.Password);
                 if (!passResult.Succeeded)
                 {
+                    // Vis error hvis reset feiler
                     foreach (var e in passResult.Errors)
                         ModelState.AddModelError(string.Empty, e.Description);
 
@@ -201,11 +219,12 @@ namespace OBLIG1.Controllers
                 }
             }
 
+            // Alt ok -> redirect til index
             return RedirectToAction(nameof(Index));
         }
 
         // ---------- DELETE ----------
-
+        // Sletter en bruker baser på ID
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

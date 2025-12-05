@@ -1,38 +1,48 @@
 @model OBLIG1.Models.LoginVm
 
 @{
-    Layout = "_Layout";
-    ViewData["HideChrome"] = true;
     ViewData["Title"] = "Log in";
 }
 
-<div class="hero">
+<div class="hero"> <!-- Plasserer login-boksen midt på skjermen -->
     <div class="login-card" role="dialog" aria-labelledby="authTitle" aria-describedby="authDesc">
+        
+        <!-- Tittel og beskrivelse av dialogboksen for økt tilgjengelighet -->
         <h2 id="authTitle" style="margin:0 0 4px 0;">Welcome</h2>
         <p id="authDesc" class="muted" style="margin:0 0 16px 0;">
             Log in to continue
         </p>
 
+        
+        <!-- Logg inn-skjema som sender POST til AuthController.Index -->
+        <!-- asp-antiforgery legger automatisk til CSRF-beskyttelse -->
         <form asp-action="Index" method="post" asp-antiforgery="true" novalidate>
+
+            <!-- Viser server-side valideringsfeil samlet øverst -->
             <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:8px;"></div>
 
+            
+            <!-- Epost-felt bundet til LoginVm.Email -->
             <div class="field">
                 <label asp-for="Email"></label>
-                <input asp-for="Email" autocomplete="username" />
+                <input asp-for="Email" autocomplete="username"/>
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
+            <!-- Passordfelt bundet til LoginVm.Password -->
             <div class="field">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" autocomplete="current-password" />
+                <input asp-for="Password" autocomplete="current-password"/>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
+            <!-- Knapp som sender inn login-skjemaet -->
             <button type="submit" class="btn-primary btn-block">Log in</button>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <!-- Importerer klientside valideringsscript (jQuery validation osv.) -->
     <partial name="_ValidationScriptsPartial" />
 }
