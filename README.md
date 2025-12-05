@@ -58,13 +58,9 @@ Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsl
    ```bash
    docker compose up --build
    ```
-   eller direkte med .NET (uten database)<br>
-   ```bash
-   dotnet run
-   ```
 6. Åpne nettleser og naviger til:<br>
    ```bash
-   http://localhost:5134
+   https://localhost:8443
    ```
 
 ## 4. Brukere og roller
