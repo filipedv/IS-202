@@ -1,0 +1,4 @@
+# Denne filen sikrer at certs/ mappen blir committet til git
+# Sertifikatfilene (.pfx, .key, .crt) er ignorert og må genereres lokalt
+# Kjør: ./generate-cert.sh
+
