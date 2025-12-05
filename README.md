@@ -154,10 +154,21 @@ Eksempler på testede områder:
 
 - GeoJSON-validering i ObstacleService avviser ugyldig input
 
-Testene kjøres med:
+For testene som krever databaseatferd, men ikke en ekte MariaDB-instans, brukes EF Core sin:
 
-dotnet test
- 
+UseInMemoryDatabase()
+
+Denne databasen ligger kun i minnet og simulerer all standard EF-adferd, slik at vi kan teste lagring og henting av data uten Docker. Det brukes blant annet til å teste ObstacleService, f.eks.:
+
+- piloter får kun se egne hindre
+
+- registerfører får se alle hindre
+
+- GeoJSON valideres før lagring
+
+- objekter lagres og hentes riktig
+
+- forsøk på ulovlig endring fører til feil
 
 ### Kjøring av enhetstester
 ```
