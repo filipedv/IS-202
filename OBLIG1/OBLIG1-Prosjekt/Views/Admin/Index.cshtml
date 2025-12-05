@@ -43,7 +43,7 @@
         @* Header med tittel + filter + "Add user"-knapp *@
         
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="mb-0">Users</h2>
+            <h2 class="text-4xl mb-0">Users</h2>
 
             <div class="admin-header-actions">
                 
@@ -52,12 +52,13 @@
                         class="form-select form-select-sm admin-role-filter">
                     <option value="all">All roles</option>
                     <option value="Pilot">Pilot</option>
-                    <option value="Registerforer">Registerforer</option>
+                    <option value="Registerforer">Registrar</option>
                     <option value="Admin">Admin</option>
                 </select>
 
                 <!-- ADD USER-knapp -->
-                <a asp-action="Create" class="btn btn-primary">
+                <a asp-action="Create" class="btn btn-primary btn-sm rounded-1 d-flex align-items-center justify-content-center"
+                   style="height: 32px;">
                     Add user
                 </a>
             </div>
@@ -81,12 +82,13 @@
                     <td class="user-roles">@string.Join(", ", u.Roles)</td>
                     
                     @* Edit + Delete-knapper *@
-                    <td class="text-end">
+                    <td class="text-end d-flex justify-content-end align-items-center gap-1">
                         
                         @* Edit-knapp *@
                         <a asp-action="Edit"
                            asp-route-id="@u.Id"
-                           class="btn btn-sm btn-secondary me-1">
+                           class="btn btn-sm btn-secondary rounded-1 d-flex align-items-center justify-content-center"
+                           style="height: 32px;">
                             Edit
                         </a>
                         
@@ -98,7 +100,8 @@
                               onsubmit="return confirm('Delete this user?');">
                             @Html.AntiForgeryToken()
                             <button type="submit"
-                                    class="btn btn-sm btn-danger">
+                                    class="btn btn-sm btn-danger rounded-1 d-flex align-items-center justify-content-center"
+                                    style="height: 32px;">
                                 Delete
                             </button>
                         </form>
