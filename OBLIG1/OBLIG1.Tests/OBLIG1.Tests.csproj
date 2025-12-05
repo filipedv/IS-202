@@ -23,4 +23,10 @@
     <ProjectReference Include="..\OBLIG1-Prosjekt\OBLIG1-Prosjekt.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\..\..\..\Downloads\IS-202-EndringITests\OBLIG1\OBLIG1.Tests\OBLIG1.Tests.csproj">
+      <Link>OBLIG1.Tests.csproj</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>
