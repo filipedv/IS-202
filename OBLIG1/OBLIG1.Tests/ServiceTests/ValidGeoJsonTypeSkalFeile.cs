@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using OBLIG1.Models;
 using OBLIG1.Services;
@@ -19,13 +20,16 @@ public class CreateAsync_ShouldRejectJsonWithoutTypePropertyTests
         var vm = new ObstacleData
         {
             ObstacleName = "Test",
-            GeometryGeoJson = "{\"coordinates\":[7.99,58.14]}"
+            GeometryGeoJson = "{\"coordinates\":[7.99,58.14]}" // Mangler 'type' property
         };
 
-        // Act
-        var result = await service.CreateAsync(vm, "user-123");
-
-        // Assert
-        Assert.Null(result.GeometryGeoJson);
+        // Act & Assert
+        // Service skal kaste ArgumentException når GeoJSON mangler 'type' property
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => service.CreateAsync(vm, "user-123"));
+        
+        // Verifiser at ingenting ble lagret i databasen
+        var count = await db.Obstacles.CountAsync();
+        Assert.Equal(0, count);
     }
 }

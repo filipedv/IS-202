@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OBLIG1.Data;
@@ -30,13 +31,21 @@ public class ObstacleService : IObstacleService
         if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
             throw new ArgumentException("GeometryGeoJson cannot be null or empty", nameof(vm));
 
+        // Valider GeoJSON-format
+        var validatedGeoJson = ValidateGeoJson(vm.GeometryGeoJson);
+        if (validatedGeoJson == null)
+        {
+            _logger.LogWarning("Invalid GeoJSON format provided: missing 'type' property");
+            throw new ArgumentException("Invalid GeoJSON format: 'type' property is required", nameof(vm));
+        }
+
         var entity = new Obstacle
         {
             Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
             Height          = (vm.ObstacleHeight is null || vm.ObstacleHeight < 0) ? null : vm.ObstacleHeight,
             Description     = vm.ObstacleDescription ?? string.Empty,
             Type            = null,
-            GeometryGeoJson = vm.GeometryGeoJson,
+            GeometryGeoJson = validatedGeoJson,
             RegisteredAt    = DateTime.UtcNow,
             CreatedByUserId = userId,
             Status          = ObstacleStatus.Pending
@@ -216,5 +225,36 @@ public class ObstacleService : IObstacleService
         await _db.SaveChangesAsync();
         _logger.LogInformation("Deleted obstacle {ObstacleId} by user", id);
         return true;
+    }
+
+    /// <summary>
+    /// Validerer GeoJSON-format og returnerer null hvis ugyldig.
+    /// Sjekker at JSON har en 'type' property som er påkrevd i GeoJSON-spesifikasjonen.
+    /// </summary>
+    private static string? ValidateGeoJson(string? geoJson)
+    {
+        if (string.IsNullOrWhiteSpace(geoJson))
+            return null;
+
+        try
+        {
+            // Prøv å parse JSON
+            using var doc = JsonDocument.Parse(geoJson);
+            var root = doc.RootElement;
+
+            // GeoJSON krever en 'type' property
+            if (!root.TryGetProperty("type", out _))
+            {
+                return null;
+            }
+
+            // Returner original JSON hvis validering passerer
+            return geoJson;
+        }
+        catch (JsonException)
+        {
+            // Hvis JSON ikke kan parses, returner null
+            return null;
+        }
     }
 }
