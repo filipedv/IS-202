@@ -62,6 +62,10 @@ Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsl
    ```bash
    https://localhost:8443
    ```
+   eller
+   ```bash
+   https://localhost:8080
+   ```
 
 ## 4. Brukere og roller
 | E-post | Passord | Rolle |
@@ -255,7 +259,7 @@ Systemtesten ble utført manuelt basert på forhåndsdefinerte testcaser. For hv
 | **Faktisk resultat / Status** | OK |
 
 
-### 5. Tilgangskontroll og admin-funksjoner
+### Tilgangskontroll og admin-funksjoner
 
 ### Systemtest 11 – Admin har tilgang til adminsider
 | Felt | Verdi |
@@ -425,6 +429,8 @@ Ingen kritiske problemer ble avdekket, men følgende forbedringspunkter bør vur
 - Uklare ikonknapper for registrering av hinder  
 - Registerfører ønsker mulighet til å registrere hindre  
 
+### Oppsummering av testing 
+Det er gjennomført flere typer tester for å sikre kvaliteten i applikasjonen. Brukertesting bekreftet at grensesnittet og arbeidsflyten fungerer som forventet, samtidig som det ga verdifulle tilbakemeldinger. Systemtesting verifiserte at funksjonaliteten, fra innlogging til håndtering av hindere, opptrer som forventet. Enhetstesting sikret at kritiske deler av domenelogikken, som validering og autorisasjon, er stabilt. I tillegg ble det utført sikkerhetstesting med fokus på XSS, CSRF, GeoJSON-håndtering og tilgangskontroll. Samlet sett viser testene at systemet er funksjonelt, stabilt og godt beskyttet mot sentrale sikkerhetstrusler. 
 
 ### Konklusjon
 
@@ -435,7 +441,7 @@ Flere forbedringer ble likevel identifisert, og disse kan bidra til å gjøre ar
 
 ---
 
-### Sikkerhet
+## 7. Sikkerhet
 
 Applikasjonen er bygget med fokus på grunnleggende web-sikkerhet i ASP.NET Core. Nedenfor beskrives de viktigste tiltakene, med spesielt fokus på håndtering av GeoJSON og XSS.
 
@@ -519,6 +525,7 @@ if (existing) {
 ```
 På denne måten kan ikke GeometryGeoJson “bryte seg ut” av stringen og bli kjørbar kode, selv om noen forsøker å legge inn ondsinnet innhold.
 Validering av GeoJSON på serversiden
+
  ### Validering av GeoJSON på serversiden
  For å unngå at ugyldig eller manipulert GeoJSON lagres i databasen, valideres GeometryGeoJson i ObstacleService hver gang et hinder opprettes eller oppdateres:
 Det sjekkes at strengen ikke er for lang (en enkel MaxGeoJsonLength-grense).
@@ -563,10 +570,3 @@ trygg serialisering i view (JsonSerializer.Serialize + JSON.parse),
 og validering av GeoJSON på serversiden før lagring.
 Domenelogikk i ObstacleService sørger for at brukere kun kan se og endre data de har lov til.
 
----
-
-### Oppsummering av testing 
-Det er gjennomført flere typer tester for å sikre kvaliteten i applikasjonen. Brukertestig bekreftet at grensesnittet og arbeidsflyten fungerer som forventet, samtidig som det ga verdifulle tilbakemeldinger. Systemtesting verifiserte at funksjonaliteten, fra innlogging til håndtering av hindere, opptrer som forventet. Enhetstesting sikret at kritiske deler av domenelogikken, som validering og autorisasjon, er stabilt. I tillegg ble det utført sikkerhetstesting med fokus på XSS, CSRF, GeoJSON-håndtering og tilgangskontroll. Samlet sett viser testene at systemet er funksjonelt, stabilt og godt beskyttet mot sentrale sikkerhetstrusler. 
-
-
-  
