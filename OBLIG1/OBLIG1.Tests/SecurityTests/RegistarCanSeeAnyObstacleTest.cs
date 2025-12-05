@@ -12,7 +12,7 @@ public class GetEditViewModelAsync_RegistrarCanAccessAnyObstacleTests
     [Fact]
     public async Task GetEditViewModelAsync_RegistrarCanAccessAnyObstacle()
     {
-        // Arrange
+        
         await using var db = TestHelpers.CreateInMemoryDb($"Auth_RegistrarAccess_{Guid.NewGuid()}");
         var service = new ObstacleService(db, NullLogger<ObstacleService>.Instance);
 
@@ -28,10 +28,10 @@ public class GetEditViewModelAsync_RegistrarCanAccessAnyObstacleTests
 
         var registrarUser = TestHelpers.CreateUser("registrar-1", AppRoles.Registrar);
 
-        // Act
+        
         var result = await service.GetEditViewModelAsync(obstacle.Id, registrarUser);
 
-        // Assert
+        
         Assert.NotNull(result);
         Assert.Equal("Any Obstacle", result.Name);
     }

@@ -14,18 +14,19 @@ public class AuthControllerTest_ReturnUrl
     [Fact]
     public void Index_Get_ShouldSetReturnUrlInViewData()
     {
-        // Arrange
+        
         var userManagerMock = AuthTestHelper.CreateUserManagerMock();
         var signInManagerMock = AuthTestHelper.CreateSignInManagerMock(userManagerMock.Object);
 
         var controller = new AuthController(signInManagerMock.Object, userManagerMock.Object);
         var returnUrl = "/Obstacle/Overview";
 
-        // Act
+        // Metoden skal returne ViewResult
         var result = controller.Index(returnUrl);
 
-        // Assert
+        
         var viewResult = Assert.IsType<ViewResult>(result);
+        // Controlleren skal lagre returnUrl i ViewData
         Assert.Equal(returnUrl, viewResult.ViewData["ReturnUrl"]);
     }
 }

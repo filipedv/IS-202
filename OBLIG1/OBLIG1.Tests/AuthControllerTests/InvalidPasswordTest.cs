@@ -12,10 +12,11 @@ public class InvalidPasswordTest
     [Fact]
     public async Task Index_Post_ShouldReturnViewWithError_WhenPasswordIsWrong()
     {
-        // Arrange
+        //vi setter opp falske (mock) versjoner av UserManager og SignInManager
         var userManagerMock = AuthTestHelper.CreateUserManagerMock();
         var signInManagerMock = AuthTestHelper.CreateSignInManagerMock(userManagerMock.Object);
 
+        // Oppretter AuthController med mockene
         var controller = new AuthController(signInManagerMock.Object, userManagerMock.Object);
 
         var user = new ApplicationUser
@@ -23,13 +24,15 @@ public class InvalidPasswordTest
             Email = "test@test.com",
             UserName = "test@test.com"
         };
-
+        
+        // ViewModel for å simulere en innloggingsforespørsel med feil passord
         var vm = new LoginVm
         {
             Email = "test@test.com",
             Password = "WrongPassword!"
         };
 
+        // Når controlleren prøver å hente brukeren  returner vår testbruker
         userManagerMock
             .Setup(x => x.FindByEmailAsync(vm.Email))
             .ReturnsAsync(user);
@@ -42,10 +45,10 @@ public class InvalidPasswordTest
                 It.IsAny<bool>()))
             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
 
-        // Act
+        // controlleren returnerer en ViewResult  (ikke redirect)
         var result = await controller.Index(vm, null);
 
-        // Assert
+        
         var viewResult = Assert.IsType<ViewResult>(result);
         Assert.False(controller.ModelState.IsValid);
         Assert.True(controller.ModelState.ContainsKey(string.Empty));

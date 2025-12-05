@@ -12,13 +12,16 @@ public class GetOverviewAsync_PilotShouldOnlySeeOwnObstaclesTests
     [Fact]
     public async Task GetOverviewAsync_PilotShouldOnlySeeOwnObstacles()
     {
-        // Arrange
+        // Opprett en in-memory database med unikt navn for denne testen
         await using var db = TestHelpers.CreateInMemoryDb($"Auth_PilotOwnOnly_{Guid.NewGuid()}");
+        
+        // Opprett tjenesten som skal testes (ObstacleService)
         var service = new ObstacleService(db, NullLogger<ObstacleService>.Instance);
 
         db.Obstacles.AddRange(
             new Obstacle 
             { 
+                
                 Name = "My Obstacle", 
                 CreatedByUserId = "pilot-1", 
                 GeometryGeoJson = "{\"type\":\"Point\",\"coordinates\":[0,0]}" 
@@ -33,11 +36,11 @@ public class GetOverviewAsync_PilotShouldOnlySeeOwnObstaclesTests
         await db.SaveChangesAsync();
 
         var pilotUser = TestHelpers.CreateUser("pilot-1", AppRoles.Pilot);
-
-        // Act
+        
+        
         var result = await service.GetOverviewAsync(pilotUser);
 
-        // Assert
+        
         Assert.Single(result);
         Assert.Equal("My Obstacle", result[0].Name);
     }

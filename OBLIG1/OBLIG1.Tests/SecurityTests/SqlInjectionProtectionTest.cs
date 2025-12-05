@@ -19,7 +19,7 @@ public class SqlInjectionProtectionTest
     [Fact]
     public async Task CreateAsync_WithSqlInjectionInName_ShouldTreatAsLiteralString()
     {
-        // Arrange
+        
         await using var db = TestHelpers.CreateInMemoryDb($"SqlInjection_Name_{Guid.NewGuid()}");
         var service = new ObstacleService(db, NullLogger<ObstacleService>.Instance);
 
@@ -34,7 +34,7 @@ public class SqlInjectionProtectionTest
         };
         var userId = "user-123";
 
-        // Act
+        
         var result = await service.CreateAsync(vm, userId);
 
         // Assert
