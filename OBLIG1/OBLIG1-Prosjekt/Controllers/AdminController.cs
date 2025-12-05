@@ -71,7 +71,7 @@ namespace OBLIG1.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> Create(AdminUserEditViewModel vm)
         {
             // Sikrer at ViewModel følger valideringsreglene
@@ -126,17 +126,21 @@ namespace OBLIG1.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ---------- EDIT ----------
+        // ---------- EDIT: Administrator kan redigere bruker informasjon ----------
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string id)  
         {
+            // Hent bruker, return error hvis den ikke finnes
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
+            // Tilgjengelige roller 
             var roles     = await GetAllRoleNamesAsync();
+            // Brukerens nåværigende rolle
             var userRoles = await _userManager.GetRolesAsync(user);
 
+            // Map data til viewmodel som brukes i edit skjema
             var vm = new AdminUserEditViewModel
             {
                 Id            = user.Id,
@@ -149,40 +153,49 @@ namespace OBLIG1.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] //CSRF beskyttelse: post kommer fra eget skjema 
         public async Task<IActionResult> Edit(AdminUserEditViewModel vm)
         {
+            //Validerer input på roles
             if (!ModelState.IsValid)
             {
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
 
-            var user = await _userManager.FindByIdAsync(vm.Id!);
+            //Sikrer korrekte oppdatertinger
+            var user = await _userManager.FindByIdAsync(vm.Id!); 
             if (user == null) return NotFound();
-
+            // Oppdater e-post og brukernavn (brukernavn settes lik epost for testbrukere)
             user.Email    = vm.Email;
             user.UserName = vm.Email;
 
-            var updateResult = await _userManager.UpdateAsync(user);
+            // Oppdatere bruker i identiity database
+            var updateResult = await _userManager.UpdateAsync(user); 
             if (!updateResult.Succeeded)
             {
+                // Hvis oppdatering feiler blir det vist i view
                 foreach (var e in updateResult.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
 
+                // Fyll inn roller før view returneres
                 vm.AvailableRoles = await GetAllRoleNamesAsync();
                 return View(vm);
             }
 
+            // Hent nåværende roller for brukeren
             var currentRoles = await _userManager.GetRolesAsync(user);
             if (currentRoles.Any())
             {
+                // Fjerner bruker fra eksisterende roller før en ny rolle blir lagt til
                 await _userManager.RemoveFromRolesAsync(user, currentRoles);
             }
 
+            // Legger brukeren til i valgt rolle
             var roleResult = await _userManager.AddToRoleAsync(user, vm.Role);
             if (!roleResult.Succeeded)
             {
+                // Vis error hvis rolletildeling feiler
                 foreach (var e in roleResult.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
 
@@ -190,12 +203,14 @@ namespace OBLIG1.Controllers
                 return View(vm);
             }
 
-            if (!string.IsNullOrWhiteSpace(vm.Password))
+            // Trygg passordendring
+            if (!string.IsNullOrWhiteSpace(vm.Password)) 
             {
                 var token      = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var passResult = await _userManager.ResetPasswordAsync(user, token, vm.Password);
                 if (!passResult.Succeeded)
                 {
+                    // Vis error hvis reset feiler
                     foreach (var e in passResult.Errors)
                         ModelState.AddModelError(string.Empty, e.Description);
 
@@ -204,6 +219,7 @@ namespace OBLIG1.Controllers
                 }
             }
 
+            // Alt ok -> redirect til index
             return RedirectToAction(nameof(Index));
         }
 
