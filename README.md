@@ -14,13 +14,13 @@
 ---
 
 ## 1. Introduksjon
-Denne applikasjonen, Obstacle Reporting System lar piloter rapportere hindere, registerfører varlidere dem, og administratorer administrere brukere. Hindere vises i et kartbasert grensesnitt og lagres i MariaDB. Systemet kjører i Docker.
+Obstacle Reporting System er en løsning for håndtering av luftfartshindre. Piloter kan rapportere nye hindere, registerførere kontrollerer og godkjenner dem, og administratorer administrerer brukere og roller. Hindrene visualiseres på et kartbasert grensesnitt, lagres i MariaDB og systemet distribueres som containere i Docker.
 
 **Hovedfunksjonalitet:**
 
 - Kobling til **MariaDB**, med både applikasjon og database kjørende i Docker.
 - **Identitetshåndtering**, som tillater registrering av nye brukere og lagring i databasen.
-- **Autentisering og autoriserng** via Identity Framwork, slik at brukere kan logge inn og administrere hindringer.
+- **Autentisering og autorisering** via Identity Framework, slik at brukere kan logge inn og administrere hindringer.
 - Innmelding og validering av hindere (punkt og linje på kartet).
 - Oversikt over registrerte hindere.
 - Mobiltilpasset brukergrensesnitt (frontend) for piloter.
@@ -64,7 +64,7 @@ Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsl
    ```
    eller
    ```bash
-   https://localhost:8080
+   http://localhost:8080
    ```
 
 ## 4. Brukere og roller
@@ -79,7 +79,7 @@ Applikasjonen følger MVC-arkitektur og håndterer både GET og POST forespørsl
 - Registerfører: Validerer hinder rapporter fra pilot.
 - Admin: Administrerer brukere og roller, full tilgang til systemet.<br>
 
-Nye brukere kan registreres via administratorbruker.
+Nye brukere kan registreres via administrator-bruker.
 
 ## 5. Systemarkitektur
 Applikasjonen følger **MVC-arkitektur** (Model-View-Controller) og kjører i Docker for å sikre konsistens mellom utviklings- og produksjonsmiljø. Den benytter **MariaDB** som database, og .NET 9 med Identity Framework for autentisering og autorisering.
@@ -89,7 +89,7 @@ Applikasjonen følger **MVC-arkitektur** (Model-View-Controller) og kjører i Do
   ex. `ObstacleData`
   - Representerer et hinder og lagrer:<br>
     ObstacleName (string), ObstacleHeight (double), ObstacleDescription (string),
-    IsDraft (bool), GeometryJSON (GeoJSON-format for kart)
+    GeometryJSON (GeoJSON-format for kart)
   
 - **Controllers** : Håndterer HTTP-forespørsler (GET/POST), validerer input og sender data til views eller til database via Services/EF Core.
   ex. `ObstacleController`
@@ -134,8 +134,10 @@ Testing er gjennomført for å sikre korrekt funksjonalitet, dataintegritet og b
 Testene er implementert med xUnit. 
 
 ### Kjøring av enhetstester
+```
 dotnet test
-(Alle tester er tilgjengelig i OBLIG1.Tests - prosjektet)
+```
+(Alle tester er tilgjengelig i OBLIG1.Tests)
 
 ### Systemtesting 
 
@@ -191,6 +193,7 @@ Systemtesten ble utført manuelt basert på forhåndsdefinerte testcaser. For hv
 | **Steg** | 1. Trykk “Register Obstacle”<br>2. Velg “Point”<br>3. Marker et punkt på kartet<br>4. Trykk “Submit” |
 | **Forventet resultat** | Nytt hinder lagres med korrekt geometri og vises i kartet |
 | **Faktisk resultat / Status** | OK |
+
 
 ### Systemtest 4 – Vise liste med alle hindre
 | Felt | Verdi |
@@ -290,12 +293,12 @@ Feilen ble rettet og testen ble kjørt på nytt med resultat OK.
 
 Systemtesten viser at applikasjonens sentrale brukerflyt fungerer som forventet, inkludert:
 
-- innlogging  
-- registrering av hindringer  
-- opprettelse, redigering og sletting  
-- korrekt visning i kartet  
-- tilgangskontroll  
-- registerfører-godkjenning  
+- Innlogging  
+- Registrering av hindringer  
+- Opprettelse, redigering og sletting  
+- Korrekt visning i kartet  
+- Tilgangskontroll  
+- Registerfører-godkjenning  
 
 Systemet oppfyller dermed de viktigste funksjonelle kravene.
 
