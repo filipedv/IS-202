@@ -7,8 +7,10 @@ using Xunit;
 
 namespace OBLIG1.Tests;
 
+
 public class CreateAsync_ShouldAcceptValidGeoJsonPointTests
 {
+// Tester at CreateAsync godtar gyldig GeoJSON Point og lagrer geometry-feltet    
     [Fact]
     public async Task CreateAsync_ShouldAcceptValidGeoJsonPoint()
     {

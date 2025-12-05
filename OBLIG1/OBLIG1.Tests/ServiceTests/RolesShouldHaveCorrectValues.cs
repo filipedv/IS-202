@@ -14,11 +14,11 @@ public class RolesShouldHaveCorrectValues
         Assert.Equal("Registerforer", AppRoles.Registrar);
         Assert.Equal("Admin", AppRoles.Admin);
     }
-
+    
+// Tester at det finnes akkurat tre definerte roller i AppRoles
     [Fact]
     public void AppRoles_ShouldHaveThreeRoles()
     {
-        // Sjekk at vi har definert akkurat 3 roller
         var roleFields = typeof(AppRoles)
             .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(f => f.IsLiteral && !f.IsInitOnly)

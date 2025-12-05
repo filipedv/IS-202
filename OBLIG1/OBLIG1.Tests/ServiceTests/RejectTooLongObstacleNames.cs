@@ -23,6 +23,7 @@ public class RejectTooLongObstacleNames
         Assert.Contains(results, r => r.MemberNames.Contains("ObstacleName"));
     }
 
+// Tester at domenemodellen Obstacle avviser navn lengre enn 100 tegn
     [Fact]
     public void Obstacle_Name_ShouldRejectTooLongString()
     {
@@ -38,7 +39,8 @@ public class RejectTooLongObstacleNames
         Assert.False(isValid);
         Assert.Contains(results, r => r.MemberNames.Contains("Name"));
     }
-
+    
+// Tester at ObstacleData godtar et navn som er nøyaktig 100 tegn
     [Fact]
     public void ObstacleData_Name_ShouldAcceptExactly100Characters()
     {

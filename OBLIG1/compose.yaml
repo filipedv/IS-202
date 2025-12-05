@@ -1,5 +1,9 @@
 ﻿version: "3.9"
 
+# OBS: Generer SSL-sertifikat før første oppstart: 
+# openssl req -x509 -newkey rsa:4096 -keyout certs/devcert.key -out certs/devcert.crt -days 365 -nodes -subj "/CN=localhost"
+# openssl pkcs12 -export -out certs/devcert.pfx -inkey certs/devcert.key -in certs/devcert.crt -passout pass:Oblig1DevOnly!
+
 services:
   db:
     image: mariadb:lts

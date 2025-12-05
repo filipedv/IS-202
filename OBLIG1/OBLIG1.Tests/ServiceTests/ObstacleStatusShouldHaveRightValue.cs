@@ -6,6 +6,7 @@ namespace OBLIG1.Tests;
 // Tester at statusen på hinder er riktig
 public class ObstacleStatusShouldHaveRightValue
 {
+// Tester at enum-verdiene for ObstacleStatus har riktig tallverdi (0,1,2)    
     [Fact]
     public void ObstacleStatus_ShouldHaveCorrectValues()
     {
@@ -14,7 +15,8 @@ public class ObstacleStatusShouldHaveRightValue
         Assert.Equal(1, (int)ObstacleStatus.Approved);
         Assert.Equal(2, (int)ObstacleStatus.Rejected);
     }
-
+    
+// Tester at nye Obstacle-objekter får default status Pending
     [Fact]
     public void Obstacle_DefaultStatus_ShouldBePending()
     {
@@ -24,7 +26,8 @@ public class ObstacleStatusShouldHaveRightValue
         // Assert
         Assert.Equal(ObstacleStatus.Pending, obstacle.Status);
     }
-
+    
+// Tester at vi kan sette Status til alle gyldige enum-verdier
     [Theory]
     [InlineData(ObstacleStatus.Pending)]
     [InlineData(ObstacleStatus.Approved)]
@@ -40,11 +43,11 @@ public class ObstacleStatusShouldHaveRightValue
         // Assert
         Assert.Equal(status, obstacle.Status);
     }
-
+    
+// Tester at ObstacleStatus-enumet bare har tre definerte verdier
     [Fact]
     public void ObstacleStatus_ShouldHaveThreeValues()
     {
-        // Sjekk at enum har akkurat 3 verdier
         var values = Enum.GetValues<ObstacleStatus>();
         Assert.Equal(3, values.Length);
     }

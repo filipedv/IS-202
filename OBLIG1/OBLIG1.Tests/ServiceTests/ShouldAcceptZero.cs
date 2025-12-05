@@ -4,7 +4,7 @@ using Xunit;
 
 namespace OBLIG1.Tests;
 
-// Sjekker at høyden på hinder kan være 0
+// Tester at domenemodellen Obstacle godtar høyde 0
 public class ShouldAcceptZero
 {
     [Fact]
@@ -21,7 +21,8 @@ public class ShouldAcceptZero
         // Assert
         Assert.True(isValid);
     }
-
+    
+// Tester at ObstacleData godtar høyde 0
     [Fact]
     public void ObstacleData_Height_ShouldAcceptZero()
     {
@@ -36,7 +37,8 @@ public class ShouldAcceptZero
         // Assert
         Assert.True(isValid);
     }
-
+    
+// Tester at ObstacleData godtar null som høyde (feltet er valgfritt)
     [Fact]
     public void ObstacleData_Height_ShouldAcceptNull()
     {

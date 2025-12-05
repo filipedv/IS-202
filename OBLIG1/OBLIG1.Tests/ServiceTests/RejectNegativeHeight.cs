@@ -22,7 +22,9 @@ public class RejectNegativeHeight
         Assert.False(isValid, "Negativ høyde i ObstacleData skal avvises");
         Assert.Contains(results, r => r.MemberNames.Contains("ObstacleHeight"));
     }
-
+    
+// Tester at Obstacle-modellen avviser negativ høyde
+// validering skal feile og feilen skal være knyttet til Height-feltet.
     [Fact]
     public void Obstacle_Height_ShouldRejectNegativeValue()
     {

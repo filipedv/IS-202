@@ -8,6 +8,7 @@ using Xunit;
 
 namespace OBLIG1.Tests;
 
+// Tester at CreateAsync avviser GeoJSON uten 'type'-felt og kaster ArgumentException uten å lagre noe i databasen
 public class CreateAsync_ShouldRejectJsonWithoutTypePropertyTests
 {
     [Fact]

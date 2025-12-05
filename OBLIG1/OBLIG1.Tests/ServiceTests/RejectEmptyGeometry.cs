@@ -9,7 +9,8 @@ using OBLIG1.Services;
 using Xunit;
 
 namespace OBLIG1.Tests;
-
+// Hjelpemetode som lager en ObstacleController for tester,
+// med en fake innlogget bruker, HttpContext og TempData satt opp.
 public class RejectEmptyGeometry
 {
     private ObstacleController CreateController(Mock<IObstacleService> mockService)
@@ -54,7 +55,9 @@ public class RejectEmptyGeometry
             s => s.CreateAsync(It.IsAny<ObstacleData>(), It.IsAny<string>()), 
             Times.Never);
     }
-
+    
+// Tester at DataForm avviser en modell uten geometry:
+// ModelState skal være ugyldig og CreateAsync skal aldri kalles.
     [Fact]
     public async Task DataForm_ShouldRejectNullGeometry()
     {
@@ -74,7 +77,8 @@ public class RejectEmptyGeometry
             s => s.CreateAsync(It.IsAny<ObstacleData>(), It.IsAny<string>()), 
             Times.Never);
     }
-
+// Tester at DataForm avviser geometry som bare inneholder whitespace
+// Modellen skal være ugyldig og vi får tilbake et ViewResult.
     [Fact]
     public async Task DataForm_ShouldRejectWhitespaceOnlyGeometry()
     {

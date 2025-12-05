@@ -4,7 +4,7 @@ using Xunit;
 
 namespace OBLIG1.Tests;
 
-// Sjekker at hinder ikke kan være høyere enn maks høyde
+// Sjekker at hinder ikke kan være høyere enn maks høyde (200 meter)
 public class RejectValueAboveMax
 {
     [Fact]
@@ -22,7 +22,7 @@ public class RejectValueAboveMax
         Assert.False(isValid, "Høyde over 200 i ObstacleData skal avvises");
         Assert.Contains(results, r => r.MemberNames.Contains("ObstacleHeight"));
     }
-
+// Tester at domenemodellen Obstacle avviser høyde større enn maks høyde (200 meter)
     [Fact]
     public void Obstacle_Height_ShouldRejectValueAboveMax()
     {
@@ -38,7 +38,7 @@ public class RejectValueAboveMax
         Assert.False(isValid, "Høyde over 200 i Obstacle skal avvises");
         Assert.Contains(results, r => r.MemberNames.Contains("Height"));
     }
-
+// Tester at ObstacleData godtar en høyde som er nøyaktig lik maks høyde (200 meter)
     [Fact]
     public void ObstacleData_Height_ShouldAcceptExactly200()
     {
