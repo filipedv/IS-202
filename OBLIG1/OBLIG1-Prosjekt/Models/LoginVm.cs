@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OBLIG1.Models;
 
+//ViewModel for innloggingsskjema - e-post og passord er obligatorisk
 public class LoginVm
 {
     [Required, EmailAddress]

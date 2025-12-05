@@ -5,10 +5,8 @@ using OBLIG1.Models;
 
 namespace OBLIG1.Controllers
 {
-    /// <summary>
-    /// Håndterer innlogging og utlogging for alle brukere.
-    /// Brukere logges inn samme sted og sendes videre basert på rolle.
-    /// </summary>
+    // Håndterer innlogging og utlogging for alle brukere.
+    // Brukere logges inn samme sted og sendes videre basert på rolle.
     public class AuthController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -23,7 +21,7 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- Login (GET/POST) ----------
-
+        // Viser innloggingssiden
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Index(string? returnUrl = null)
@@ -31,7 +29,10 @@ namespace OBLIG1.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View(new LoginVm());
         }
-
+        
+        // Behandler innlogging fra skjemaet
+        // Validerer input og forsøker å logge inn bruker
+        // Returnerer samme view ved feil eller redirect ved suksess
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]

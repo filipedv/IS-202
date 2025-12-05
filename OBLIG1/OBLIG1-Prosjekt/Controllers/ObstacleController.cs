@@ -19,16 +19,12 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- DataForm (Create via kart) ----------
-
-        /// <summary>
-        /// Viser kart-skjema for å registrere et nytt hinder.
-        /// </summary>
+        
+        //Viser kart-skjema for å registrere et nytt hinder.
         [HttpGet]
         public IActionResult DataForm() => View(new ObstacleData());
-
-        /// <summary>
-        /// Tar imot innsending fra kart-skjema og oppretter et nytt hinder.
-        /// </summary>
+        
+        // Tar imot innsending fra kart-skjema og oppretter et nytt hinder.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DataForm(ObstacleData vm)
@@ -51,10 +47,8 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- Overview ----------
-
-        /// <summary>
-        /// Viser liste over hindere. Registerfører ser alle, pilot ser egne.
-        /// </summary>
+        
+        // Viser liste over hindere. Registerfører ser alle, pilot ser egne.
         [HttpGet]
         public async Task<IActionResult> Overview()
         {
@@ -63,7 +57,10 @@ namespace OBLIG1.Controllers
         }
 
         // ---------- Hjelpe-metoder for dropdowns (UI-lag) ----------
-
+        
+        // Lager liste over typer hindere til *dropdown
+        //*Dropdown: et UI-element som lar brukeren velge ett alternativ fra en liste
+        // Setter valgt verdi hvis oppgitt
         private static IEnumerable<SelectListItem> GetTypeOptions(string? current = null) =>
             new[]
             {
@@ -73,7 +70,8 @@ namespace OBLIG1.Controllers
                 new SelectListItem("Mast",     "Mast",     current == "Mast"),
                 new SelectListItem("Other",    "Other",    current == "Other"),
             };
-
+        // Lager liste over statusvalg til dropdown
+        // Setter valgt status basert på current
         private static IEnumerable<SelectListItem> GetStatusOptions(ObstacleStatus current) =>
             new[]
             {
@@ -81,7 +79,7 @@ namespace OBLIG1.Controllers
                 new SelectListItem("Approved", ObstacleStatus.Approved.ToString(), current == ObstacleStatus.Approved),
                 new SelectListItem("Rejected", ObstacleStatus.Rejected.ToString(), current == ObstacleStatus.Rejected),
             };
-
+        // Fyller skjemaet med type- og statusvalg, og setter om brukeren kan endre status
         private void PopulateEditViewModelUi(ObstacleEditViewModel vm)
         {
             vm.TypeOptions   = GetTypeOptions(vm.Type);
@@ -91,6 +89,8 @@ namespace OBLIG1.Controllers
 
         // ---------- Edit (kart + metadata) ----------
 
+        // Viser redigeringsskjema for et eksisterende hinder
+        // Piloter kan kun redigere egne hindere
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -108,7 +108,9 @@ namespace OBLIG1.Controllers
                 return Forbid();
             }
         }
-
+        
+        // Tar imot redigering av hinder
+        // Sjekker at alt er fylt ut og oppdaterer hinderet hvis brukeren har rettigheter
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ObstacleEditViewModel vm)
