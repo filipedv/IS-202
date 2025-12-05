@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OBLIG1.Data;
 using OBLIG1.Models;
 
@@ -9,28 +10,42 @@ namespace OBLIG1.Services;
 public class ObstacleService : IObstacleService
 {
     private readonly ApplicationDbContext _db;
+    private readonly ILogger<ObstacleService> _logger;
 
-    // En enkel grense for hvor stor GeoJSON-strengen kan være
-    // (juster opp/ned etter behov)
-    private const int MaxGeoJsonLength = 100_000;
+    private const double MetersToFeet = 3.28084;
 
-    public ObstacleService(ApplicationDbContext db)
+    public ObstacleService(ApplicationDbContext db, ILogger<ObstacleService> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     public async Task<Obstacle> CreateAsync(ObstacleData vm, string userId)
     {
-        // Valider GeoJSON før vi lagrer noe
-        ValidateGeoJsonOrThrow(vm.GeometryGeoJson);
+        if (vm == null)
+            throw new ArgumentNullException(nameof(vm));
+
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentException("User ID cannot be null or empty", nameof(userId));
+
+        if (string.IsNullOrWhiteSpace(vm.GeometryGeoJson))
+            throw new ArgumentException("GeometryGeoJson cannot be null or empty", nameof(vm));
+
+        // Valider GeoJSON-format
+        var validatedGeoJson = ValidateGeoJson(vm.GeometryGeoJson);
+        if (validatedGeoJson == null)
+        {
+            _logger.LogWarning("Invalid GeoJSON format provided: missing 'type' property");
+            throw new ArgumentException("Invalid GeoJSON format: 'type' property is required", nameof(vm));
+        }
 
         var entity = new Obstacle
         {
             Name            = string.IsNullOrWhiteSpace(vm.ObstacleName) ? "Obstacle" : vm.ObstacleName,
-            Height          = (vm.ObstacleHeight is null || vm.ObstacleHeight <= 0) ? null : vm.ObstacleHeight,
+            Height          = (vm.ObstacleHeight is null || vm.ObstacleHeight < 0) ? null : vm.ObstacleHeight,
             Description     = vm.ObstacleDescription ?? string.Empty,
             Type            = null,
-            GeometryGeoJson = vm.GeometryGeoJson,
+            GeometryGeoJson = validatedGeoJson,
             RegisteredAt    = DateTime.UtcNow,
             CreatedByUserId = userId,
             Status          = ObstacleStatus.Pending
@@ -38,11 +53,16 @@ public class ObstacleService : IObstacleService
 
         _db.Obstacles.Add(entity);
         await _db.SaveChangesAsync();
+        
+        _logger.LogInformation("Created obstacle {ObstacleId} by user {UserId}", entity.Id, userId);
         return entity;
     }
 
     public async Task<IReadOnlyList<Obstacle>> GetOverviewAsync(ClaimsPrincipal user)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
+
         IQueryable<Obstacle> q = _db.Obstacles
             .OrderByDescending(o => o.RegisteredAt);
 
@@ -50,17 +70,30 @@ public class ObstacleService : IObstacleService
         if (!user.IsInRole(AppRoles.Registrar))
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("User principal missing NameIdentifier claim");
+                throw new UnauthorizedAccessException("User ID not found in claims");
+            }
             q = q.Where(o => o.CreatedByUserId == userId);
         }
 
-        return await q.ToListAsync();
+        var result = await q.ToListAsync();
+        _logger.LogDebug("Retrieved {Count} obstacles for user", result.Count);
+        return result;
     }
 
     public async Task<ObstacleEditViewModel?> GetEditViewModelAsync(int id, ClaimsPrincipal user)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
+
         var e = await _db.Obstacles.FindAsync(id);
         if (e == null)
+        {
+            _logger.LogWarning("Attempted to get edit view model for non-existent obstacle {ObstacleId}", id);
             return null;
+        }
 
         var isRegistrar = user.IsInRole(AppRoles.Registrar);
 
@@ -68,8 +101,17 @@ public class ObstacleService : IObstacleService
         if (!isRegistrar)
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("User principal missing NameIdentifier claim during get edit view model");
+                throw new UnauthorizedAccessException("User ID not found in claims");
+            }
             if (e.CreatedByUserId != userId)
-                throw new UnauthorizedAccessException();
+            {
+                _logger.LogWarning("User {UserId} attempted to access obstacle {ObstacleId} owned by {OwnerId}", 
+                    userId, id, e.CreatedByUserId);
+                throw new UnauthorizedAccessException("You can only edit your own obstacles");
+            }
         }
 
         // Hent e-post til den som opprettet hinderet
@@ -84,7 +126,7 @@ public class ObstacleService : IObstacleService
             Name        = e.Name,
             Description = e.Description,
             HeightFt    = e.Height.HasValue
-                ? (int)Math.Round(e.Height.Value * 3.28084)
+                ? (int)Math.Round(e.Height.Value * MetersToFeet)
                 : (int?)null,
             Type            = e.Type,
             GeometryGeoJson = e.GeometryGeoJson,
@@ -98,9 +140,17 @@ public class ObstacleService : IObstacleService
 
     public async Task<bool> UpdateAsync(ObstacleEditViewModel vm, ClaimsPrincipal user)
     {
+        if (vm == null)
+            throw new ArgumentNullException(nameof(vm));
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
+
         var e = await _db.Obstacles.FindAsync(vm.Id);
         if (e == null)
+        {
+            _logger.LogWarning("Attempted to update non-existent obstacle {ObstacleId}", vm.Id);
             return false;
+        }
 
         var isRegistrar = user.IsInRole(AppRoles.Registrar);
 
@@ -108,18 +158,24 @@ public class ObstacleService : IObstacleService
         if (!isRegistrar)
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("User principal missing NameIdentifier claim during update");
+                throw new UnauthorizedAccessException("User ID not found in claims");
+            }
             if (e.CreatedByUserId != userId)
-                throw new UnauthorizedAccessException();
+            {
+                _logger.LogWarning("User {UserId} attempted to update obstacle {ObstacleId} owned by {OwnerId}", 
+                    userId, vm.Id, e.CreatedByUserId);
+                throw new UnauthorizedAccessException("You can only update your own obstacles");
+            }
         }
-
-        // Valider GeoJSON før vi oppdaterer
-        ValidateGeoJsonOrThrow(vm.GeometryGeoJson);
 
         e.Name        = vm.Name;
         e.Description = vm.Description;
         e.Type        = vm.Type;
         e.Height      = vm.HeightFt.HasValue
-            ? (double?)(vm.HeightFt.Value / 3.28084)
+            ? (double?)(vm.HeightFt.Value / MetersToFeet)
             : null;
         e.GeometryGeoJson = vm.GeometryGeoJson;
 
@@ -130,37 +186,75 @@ public class ObstacleService : IObstacleService
         }
 
         await _db.SaveChangesAsync();
+        _logger.LogInformation("Updated obstacle {ObstacleId} by user", vm.Id);
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id, ClaimsPrincipal user)
+    {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
+
+        var e = await _db.Obstacles.FindAsync(id);
+        if (e == null)
+        {
+            _logger.LogWarning("Attempted to delete non-existent obstacle {ObstacleId}", id);
+            return false;
+        }
+
+        var isRegistrar = user.IsInRole(AppRoles.Registrar);
+
+        // Pilot kan bare slette egne hindere
+        if (!isRegistrar)
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("User principal missing NameIdentifier claim during delete");
+                throw new UnauthorizedAccessException("User ID not found in claims");
+            }
+            if (e.CreatedByUserId != userId)
+            {
+                _logger.LogWarning("User {UserId} attempted to delete obstacle {ObstacleId} owned by {OwnerId}", 
+                    userId, id, e.CreatedByUserId);
+                throw new UnauthorizedAccessException("You can only delete your own obstacles");
+            }
+        }
+
+        _db.Obstacles.Remove(e);
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Deleted obstacle {ObstacleId} by user", id);
         return true;
     }
 
     /// <summary>
-    /// Sjekker at GeoJSON-strengen er kort nok og gyldig JSON.
-    /// Kaster ArgumentException hvis noe er galt.
+    /// Validerer GeoJSON-format og returnerer null hvis ugyldig.
+    /// Sjekker at JSON har en 'type' property som er påkrevd i GeoJSON-spesifikasjonen.
     /// </summary>
-    private static void ValidateGeoJsonOrThrow(string? geoJson)
+    private static string? ValidateGeoJson(string? geoJson)
     {
         if (string.IsNullOrWhiteSpace(geoJson))
-            return; // Tomt er lov, hvis domenet deres tillater det
-
-        if (geoJson.Length > MaxGeoJsonLength)
-            throw new ArgumentException(
-                $"Geometry JSON is too long (>{MaxGeoJsonLength} characters).",
-                nameof(geoJson));
+            return null;
 
         try
         {
+            // Prøv å parse JSON
             using var doc = JsonDocument.Parse(geoJson);
+            var root = doc.RootElement;
 
-            // Hvis du vil være strengere, kan du f.eks. kreve objekt/array:
-            // if (doc.RootElement.ValueKind != JsonValueKind.Object &&
-            //     doc.RootElement.ValueKind != JsonValueKind.Array)
-            // {
-            //     throw new ArgumentException("Geometry must be a JSON object or array.", nameof(geoJson));
-            // }
+            // GeoJSON krever en 'type' property
+            if (!root.TryGetProperty("type", out _))
+            {
+                return null;
+            }
+
+            // Returner original JSON hvis validering passerer
+            return geoJson;
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
-            throw new ArgumentException("Geometry is not valid JSON.", nameof(geoJson), ex);
+            // Hvis JSON ikke kan parses, returner null
+            return null;
         }
     }
 }
