@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Xunit;
+using Microsoft.Extensions.Logging.Abstractions;
 using OBLIG1.Models;
 using OBLIG1.Services;
+using Xunit;
 
 namespace OBLIG1.Tests;
 
@@ -13,7 +14,7 @@ public class GetEditViewModelAsync_RegistrarCanAccessAnyObstacleTests
     {
         // Arrange
         await using var db = TestHelpers.CreateInMemoryDb($"Auth_RegistrarAccess_{Guid.NewGuid()}");
-        var service = new ObstacleService(db);
+        var service = new ObstacleService(db, NullLogger<ObstacleService>.Instance);
 
         var obstacle = new Obstacle
         {
